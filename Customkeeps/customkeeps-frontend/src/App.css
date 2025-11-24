@@ -1,0 +1,458 @@
+/* ========= Base layout ========= */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: #333;
+  background-color: #f7f5f2;
+}
+
+/* Root centers the app container */
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+/* ========= Top bars (promo + navbar) ========= */
+
+/* Optional light promo bar feel */
+.top-promo-bar {
+  width: 100%;
+  background-color: #ffe0e0;
+  color: #a25656;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 6px 0;
+}
+
+/* Main navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background: #ffffff;
+  color: #333;
+  padding: 14px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  z-index: 1000;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
+}
+
+.nav-brand {
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-links .nav-link-btn,
+.nav-links .logout-btn-nav {
+  margin-left: 8px;
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  font-size: 0.95rem;
+}
+
+.nav-links .nav-link-btn:hover {
+  background-color: #f0f0f0;
+  color: #222;
+  transform: translateY(-1px);
+}
+
+.nav-links .logout-btn-nav {
+  background: #c44d3d;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  padding: 6px 14px;
+}
+
+.nav-links .logout-btn-nav:hover {
+  background: #a3392c;
+  transform: translateY(-1px);
+}
+
+/* ========= Page container ========= */
+
+.main-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 90px auto 40px auto; /* space under navbar */
+  padding: 0 40px 40px;
+  min-height: calc(100vh - 100px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f5f2;
+}
+
+/* Auth main centers cards vertically a bit more */
+.auth-main {
+  justify-content: center;
+}
+
+/* ========= Headings ========= */
+
+.header {
+  font-weight: 700;
+  font-size: 2.1rem;
+  margin: 10px 0 24px;
+  text-align: left;
+  color: #222;
+}
+
+/* ========= Product listing row ========= */
+
+.products-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin-bottom: 36px;
+}
+
+/* Card style similar to reference shop */
+.product-card {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e3de;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  padding: 18px 18px 20px;
+  box-sizing: border-box;
+  text-align: left;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  border-color: #d3cfc5;
+}
+
+.product-card img {
+  width: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.product-name {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.product-price {
+  font-weight: 600;
+  color: #22695a;
+  font-size: 0.96rem;
+}
+
+.product-desc {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* ========= Forms / cards below products ========= */
+
+.customization-card,
+.cart-section,
+.payment-section,
+.auth-card {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e3de;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  max-width: 640px;
+  width: 100%;
+  padding: 26px 26px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  color: #333;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.cart-section,
+.payment-section {
+  margin-top: 26px;
+}
+
+.customization-card h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 18px;
+  text-align: left;
+  color: #222;
+}
+
+/* ========= Form elements ========= */
+
+.customization-form label,
+.cart-section label,
+.payment-section label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  color: #444;
+}
+
+.customization-form select,
+.customization-form input[type="number"],
+.customization-form input[type="file"],
+.cart-section input,
+.payment-section input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #d6d3cd;
+  border-radius: 4px;
+  padding: 9px 10px;
+  margin-top: 2px;
+  font-size: 0.92rem;
+  color: #333;
+}
+
+.customization-form input[type="file"] {
+  padding: 5px 6px;
+}
+
+/* Use same font as page for form controls */
+.customization-card select,
+.customization-card input,
+.customization-card button,
+.cart-section select,
+.cart-section input,
+.cart-section button,
+.payment-section select,
+.payment-section input,
+.payment-section button {
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.form-error,
+.cart-section .form-error,
+.payment-section .form-error {
+  color: #c53030 !important;
+  font-size: 0.9rem;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* ========= Buttons ========= */
+
+.btn-green,
+.customization-card button,
+.cart-section button,
+.payment-section button,
+.auth-card button {
+  background: #22695a;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.16);
+  transition: background 0.18s, transform 0.12s, box-shadow 0.12s;
+}
+
+.btn-green:hover,
+.customization-card button:hover,
+.cart-section button:hover,
+.payment-section button:hover,
+.auth-card button:hover {
+  background: #1b5044;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.18);
+}
+
+/* Red remove button with spacing */
+.remove-btn {
+  margin-left: 10px;
+  background: #c44d3d;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.remove-btn:hover {
+  background: #a3392c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+}
+
+/* Success message under customization form */
+.success-message {
+  margin-top: 10px;
+  color: #22695a;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* ========= Auth (register/login) ========= */
+
+.auth-container {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.auth-card {
+  max-width: 360px;
+  align-items: stretch;
+}
+
+.auth-card h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #222;
+  margin: 0 0 18px;
+  text-align: left;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 9px 10px;
+  margin-bottom: 14px;
+  border-radius: 4px;
+  border: 1px solid #ddd9d0;
+  background: #fbfaf8;
+  font-size: 0.95rem;
+  color: #333 !important;
+  text-align: left;
+}
+
+.auth-card span,
+.auth-card .form-error {
+  color: #c53030 !important;
+  font-size: 0.88rem;
+}
+
+/* ========= Payment ========= */
+
+.payment-container h2 {
+  font-size: 1.3rem;
+  margin: 0 0 10px;
+  text-align: left;
+}
+
+.payment-container p {
+  margin: 4px 0 10px;
+  font-size: 0.95rem;
+}
+
+.payment-container form {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 6px;
+}
+
+/* Stripe element width */
+.payment-container .StripeElement {
+  width: 100%;
+  min-width: 260px;
+}
+
+.payment-container button {
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Hide old Logout button at bottom of payment section */
+.payment-section .logout-btn {
+  display: none;
+}
+
+/* ========= Orders page table ========= */
+
+.main-container table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 520px;
+  font-size: 0.9rem;
+}
+
+.main-container th,
+.main-container td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e3dfd7;
+}
+
+.main-container th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.main-container tbody tr:hover {
+  background-color: #faf7f2;
+}
+
+/* ========= Responsive ========= */
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 12px 18px;
+  }
+  .main-container {
+    padding: 0 18px 32px;
+  }
+}
+
+@media (max-width: 720px) {
+  .products-row {
+    grid-template-columns: 1fr;
+  }
+  .customization-card,
+  .cart-section,
+  .payment-section,
+  .auth-card {
+    padding: 18px 16px 22px;
+  }
+}
