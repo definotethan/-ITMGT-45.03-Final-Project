@@ -7,6 +7,11 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import CustomizationForm from "./components/CustomizationForm";
 import { OrderProvider, useOrders } from "./context/OrderContext";
+import logo from './assets/logo.png';
+import logoSmall from './assets/small.png';
+import shirtsImg from './assets/shirts.png';
+import mugsImg from './assets/mugs.png';
+import totesImg from './assets/totes.png';
 
 import "./App.css";
 
@@ -16,21 +21,21 @@ const products = [
     name: "Custom T-Shirt",
     price: 500,
     desc: "Wear your story with personalized designs.",
-    img: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
+    img: shirtsImg,
   },
   {
     id: 2,
-    name: "Personalized Mug",
+    name: "Custom Mug",
     price: 300,
     desc: "Perfect for hot drinks and gifting.",
-    img: "https://images.unsplash.com/photo-1517705008128-361805f42e86",
+    img: mugsImg,
   },
   {
     id: 3,
     name: "Custom Tote Bag",
     price: 400,
     desc: "Eco-friendly and stylish for your daily needs.",
-    img: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
+    img: totesImg,
   },
 ];
 
@@ -39,7 +44,8 @@ function AppInner() {
   const [paymentComplete, setPaymentComplete] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
-  const [addToCartMessage, setAddToCartMessage] = useState(""); // NEW
+  const [addToCartMessage, setAddToCartMessage] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
   const { addOrder } = useOrders();
 
@@ -69,19 +75,43 @@ function AppInner() {
   };
 
   const handleAddToCart = (data) => {
-    const product = products.find((p) => p.name === data.productName);
-    if (!product) return;
-    const newItem = {
-      id: Date.now(),
-      productName: data.productName,
-      price: product.price,
-      quantity: data.quantity,
-      customizationText: data.customizationText,
-    };
-    setCartItems((prev) => [...prev, newItem]);
-    setAddToCartMessage("Item added to cart!");        // NEW
-    setTimeout(() => setAddToCartMessage(""), 2500);   // NEW
+  const product = products.find((p) => p.name === data.productName);
+  if (!product) return;
+
+  const newItem = {
+    id: Date.now(),
+    productName: data.productName,
+    price: product.price,
+    quantity: data.quantity,
+    baseColor: data.baseColor,  // ← ADD THIS LINE
+    customizationText: data.customizationText,
+    designImageUrl: data.designImageUrl,
   };
+
+  setCartItems((prev) => [...prev, newItem]);
+  setAddToCartMessage("Item added to cart!");
+  setTimeout(() => setAddToCartMessage(""), 2500);
+  setSelectedProduct(null);
+};
+
+const handleBuyNow = (data) => {
+  const product = products.find((p) => p.name === data.productName);
+  if (!product) return;
+
+  const newItem = {
+    id: Date.now(),
+    productName: data.productName,
+    price: product.price,
+    quantity: data.quantity,
+    baseColor: data.baseColor,  // ← ADD THIS LINE
+    customizationText: data.customizationText,
+    designImageUrl: data.designImageUrl,
+  };
+
+  setCartItems((prev) => [...prev, newItem]);
+  setSelectedProduct(null);
+  navigate("/cart");
+};
 
   const handleRemoveFromCart = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
@@ -109,7 +139,7 @@ function AppInner() {
       {/* NAVBAR */}
       <nav className="navbar">
         <Link to="/" className="nav-brand">
-          CustomKeeps
+          <img src={logoSmall} alt="CustomKeeps" className="nav-logo" />
         </Link>
         {isAuthenticated ? (
           <span className="nav-links">
@@ -135,6 +165,15 @@ function AppInner() {
         )}
       </nav>
 
+      {/* Global Success Message */}
+      {addToCartMessage && (
+        <div className="global-success-message">
+          <div className="success-toast">
+            ✓ {addToCartMessage}
+          </div>
+        </div>
+      )}
+
       {/* ROUTES */}
       <Routes>
         <Route
@@ -142,42 +181,95 @@ function AppInner() {
           element={
             isAuthenticated ? (
               <div className="main-container">
-                <h1 className="header">CustomKeeps Products</h1>
-                <div className="products-row">
-                  {products.map((p) => (
-                    <div className="product-card" key={p.name}>
-                      <img src={p.img} alt={p.name} />
-                      <div className="product-name">{p.name}</div>
-                      <div className="product-price">₱{p.price}</div>
-                      <div className="product-desc">{p.desc}</div>
+                {/* Hero Section with Logo */}
+                <div className="hero-section">
+                  <img src={logo} alt="CustomKeeps - Wear Your Story" className="hero-logo" />
+                </div>
+
+                {/* Products Section */}
+                <div className="products-section">
+                  <div className="section-header">
+                    <h2 className="section-title">Our Products</h2>
+                    <p className="product-count">
+                      {products.length} products available
+                    </p>
+                  </div>
+
+                  <div className="products-row">
+                    {products.map((p) => (
+                      <div className="product-card" key={p.id}>
+                        <div className="product-image-wrapper">
+                          <img src={p.img} alt={p.name} />
+                          <div className="product-overlay">
+                            <button
+                              className="btn-customize"
+                              onClick={() => setSelectedProduct(p)}
+                            >
+                              Customize Now
+                            </button>
+                          </div>
+                        </div>
+                        <div className="product-info">
+                          <h3 className="product-name">{p.name}</h3>
+                          <p className="product-desc">{p.desc}</p>
+                          <div className="product-footer">
+                            <span className="product-price">₱{p.price}</span>
+                            <button
+                              className="btn-quick-add"
+                              onClick={() => setSelectedProduct(p)}
+                            >
+                              Customize
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Customization Modal */}
+                {selectedProduct && (
+                  <div className="customization-modal-overlay">
+                    <div className="customization-modal">
+                      <button
+                        className="modal-close"
+                        onClick={() => setSelectedProduct(null)}
+                      >
+                        ×
+                      </button>
+                      <h2>Customize Your {selectedProduct.name}</h2>
+                      <div className="modal-product-preview">
+                        <img src={selectedProduct.img} alt={selectedProduct.name} />
+                        <div>
+                          <p className="modal-product-name">{selectedProduct.name}</p>
+                          <p className="modal-product-price">₱{selectedProduct.price}</p>
+                        </div>
+                      </div>
+                      <CustomizationForm 
+                        onSubmit={handleAddToCart}
+                        onBuyNow={handleBuyNow}
+                        preSelectedProduct={selectedProduct.name}
+                      />
                     </div>
-                  ))}
-                </div>
-                <div className="customization-card">
-                  <h2>Customize Your Product</h2>
-                  <CustomizationForm onSubmit={handleAddToCart} />
-                  {addToCartMessage && (
-                    <p className="success-message">{addToCartMessage}</p>
-                  )}
-                </div>
+                  </div>
+                )}
+
                 {paymentComplete && (
-                  <p
-                    style={{
-                      textAlign: "center",
-                      fontSize: "1.17rem",
-                      marginTop: "20px",
-                    }}
-                  >
-                    Thank you for your purchase!
-                  </p>
+                  <div className="thank-you-message">
+                    <p>✓ Thank you for your purchase!</p>
+                  </div>
                 )}
               </div>
             ) : (
-              <div className="main-container auth-main">
-                {/* auth-main just uses main-container flex centering */}
-                <div className="auth-container">
-                  <Register onRegister={handleRegister} />
-                  <Login onLogin={handleLogin} />
+              <div className="auth-page-wrapper">
+                <div className="auth-layout">
+                  <div className="auth-logo-wrapper">
+                    <img src={logo} alt="CustomKeeps" className="auth-logo" />
+                  </div>
+                  <div className="auth-container">
+                    <Register onRegister={handleRegister} />
+                    <Login onLogin={handleLogin} />
+                  </div>
                 </div>
               </div>
             )
@@ -216,15 +308,7 @@ function AppInner() {
           path="*"
           element={
             <div className="main-container">
-              <p
-                style={{
-                  textAlign: "center",
-                  color: "red",
-                  marginTop: "50px",
-                }}
-              >
-                Page Not Found.
-              </p>
+              <p className="error-message">Page Not Found.</p>
             </div>
           }
         />
@@ -233,7 +317,6 @@ function AppInner() {
   );
 }
 
-// Use OrderProvider at the top level
 export default function App() {
   return (
     <OrderProvider>

@@ -14,23 +14,29 @@ export default function Login({ onLogin }) {
       const response = await loginUser(data);
 
       // Save tokens
-      localStorage.setItem("token", response.access || response.data?.access);
-      localStorage.setItem("refresh", response.refresh || response.data?.refresh);
+      const accessToken = response.access || response.data?.access;
+      const refreshToken = response.refresh || response.data?.refresh;
 
-      // Save identifier for Stripe billing details (here we use username)
-      localStorage.setItem("email", data.username); // <--- NEW LINE
+      if (accessToken) {
+        localStorage.setItem("token", accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem("refresh", refreshToken);
+      }
 
-      onLogin(); // Notify parent/app to update UI state
+      // Save identifier for billing (here we use username)
+      localStorage.setItem("email", data.username);
+
+      // Notify parent/app to update UI state
+      if (onLogin) onLogin();
     } catch (err) {
-      alert(
-        "Login failed: " +
-          (
-            err.response?.data?.detail ||
-            JSON.stringify(err.response?.data) ||
-            err.message ||
-            "Unknown error"
-          )
-      );
+      const detail =
+        err?.response?.data?.detail ||
+        (err?.response?.data && JSON.stringify(err.response.data)) ||
+        err?.message ||
+        "Unknown error";
+
+      alert("Login failed: " + detail);
     }
   };
 
@@ -42,17 +48,21 @@ export default function Login({ onLogin }) {
           {...register("username", { required: true })}
           placeholder="Username"
         />
-        {errors.username && <span>Username is required.</span>}
+        {errors.username && (
+          <span className="form-error">Username is required.</span>
+        )}
 
         <input
           {...register("password", { required: true })}
           placeholder="Password"
           type="password"
         />
-        {errors.password && <span>Password is required.</span>}
+        {errors.password && (
+          <span className="form-error">Password is required.</span>
+        )}
 
         <button type="submit" disabled={isSubmitting}>
-          Login
+          {isSubmitting ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

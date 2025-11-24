@@ -1,5 +1,5 @@
 // src/components/Payment.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -45,6 +45,12 @@ function CheckoutForm({
   const [clientSecret, setClientSecret] = useState("");
   const [status, setStatus] = useState("idle"); // idle | processing | succeeded | error
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // Hold-to-pay state
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [isHolding, setIsHolding] = useState(false);
+  const holdTimerRef = useRef(null);
+  const holdStartRef = useRef(null);
 
   const totalAmount =
     typeof finalAmount === "number"
@@ -87,12 +93,54 @@ function CheckoutForm({
     }
   }, [cartItems, totalAmount, couponCode]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (holdTimerRef.current) {
+        clearInterval(holdTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleMouseDown = () => {
+    if (!stripe || !elements || !clientSecret || status === "processing") return;
+    
+    setIsHolding(true);
+    holdStartRef.current = Date.now();
+    
+    holdTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - holdStartRef.current;
+      const progress = Math.min((elapsed / 1500) * 100, 100);
+      setHoldProgress(progress);
+      
+      if (progress >= 100) {
+        clearInterval(holdTimerRef.current);
+        processPayment();
+      }
+    }, 16); // ~60fps
+  };
+
+  const handleMouseUp = () => {
+    setIsHolding(false);
+    setHoldProgress(0);
+    if (holdTimerRef.current) {
+      clearInterval(holdTimerRef.current);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isHolding) {
+      handleMouseUp();
+    }
+  };
+
+  async function processPayment() {
     if (!stripe || !elements || !clientSecret) return;
 
     setStatus("processing");
     setErrorMessage("");
+    setIsHolding(false);
+    setHoldProgress(0);
 
     const cardElement = elements.getElement(CardElement);
 
@@ -144,22 +192,20 @@ function CheckoutForm({
         <p style={{ color: "red" }}>Error: {errorMessage}</p>
       )}
 
-      <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 400 }}>
-        <div
-          style={{
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            marginBottom: "12px",
-            width: "100%",
-            boxSizing: "border-box",
-          }}
-        >
+      <div style={{ width: "100%", maxWidth: 600 }}>
+        <div className="card-element-wrapper">
           <CardElement
             options={{
               style: {
                 base: {
                   fontSize: "16px",
+                  color: "#333",
+                  "::placeholder": {
+                    color: "#aab7c4",
+                  },
+                },
+                invalid: {
+                  color: "#c53030",
                 },
               },
             }}
@@ -167,17 +213,23 @@ function CheckoutForm({
         </div>
 
         <button
-          type="submit"
-          style={{
-            width: "100%",
-            maxWidth: 200,
-            marginTop: 8,
-          }}
+          type="button"
+          className="hold-to-pay-btn"
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onTouchStart={handleMouseDown}
+          onTouchEnd={handleMouseUp}
           disabled={!stripe || !clientSecret || status === "processing"}
+          style={{
+            background: `linear-gradient(to right, #75d481 ${holdProgress}%, #ffffff ${holdProgress}%)`,
+            color: holdProgress > 50 ? '#ffffff' : '#333',
+            border: '2px solid #75d481',
+          }}
         >
-          {status === "processing" ? "Paying..." : "Pay Now"}
+          {isHolding ? `Hold (${Math.floor(holdProgress)}%)` : "Hold to Pay"}
         </button>
-      </form>
+      </div>
     </div>
   );
 }
