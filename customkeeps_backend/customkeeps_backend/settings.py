@@ -10,7 +10,11 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 SECRET_KEY = 'django-insecure-d-lgn^dp_z%c0!1zg3g10jlq9lg_^k(!27#q+qlo%tbffz0nh5'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "itmgt-45-03-final-project.onrender.com",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
