@@ -475,16 +475,6 @@ pip install -r requirements.txt
 - **Admin Dashboard:** https://customkeeps-api.onrender.com/admin/
 - **GitHub Repository:** https://github.com/definotethan/-ITMGT-45.03-Final-Project
 
----
+\\
 
-## 📊 Project Status
-
-🟢 **Active Development** - This project is actively maintained and accepting contributions.
-
-**Current Version:** 1.0.0  
-**Last Updated:** November 25, 2025
-
----
-
-**Made with ❤️ by [Your Name] | CustomKeeps © 2025**
 
