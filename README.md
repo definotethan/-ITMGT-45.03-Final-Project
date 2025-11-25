@@ -55,6 +55,11 @@ A full-stack e-commerce platform for selling customizable products (tote bags, m
 - **CORS:** django-cors-headers for cross-origin requests
 - **Deployment:** Render
 
+### Rationale
+The tech stack was updated from the previous GC2 version to this final project in order to improve scalability, maintainability, and the overall user experience.
+
+During GC2, we utilized simpler technologies better suited for rapid prototyping and experimentation. For the final project, we adopted React (with Vite) and Django REST Framework to leverage modern, industry-standard tools that offer significantly improved performance, easier component-based development, and robust API capabilities for future growth. Stripe integration was added for secure, real-world payment processing. The enhanced admin interface and deployment changes were also made to ensure this application is ready for production use across devices and platforms.
+
 ---
 
 ## 📁 Project Structure
@@ -476,5 +481,6 @@ pip install -r requirements.txt
 - **GitHub Repository:** https://github.com/definotethan/-ITMGT-45.03-Final-Project
 
 \\
+
 
 
