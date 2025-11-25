@@ -16,9 +16,12 @@ SECRET_KEY = 'django-insecure-d-lgn^dp_z%c0!1zg3g10jlq9lg_^k(!27#q+qlo%tbffz0nh5
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "itmgt-45-03-final-project.onrender.com",
+    'localhost',
+    '127.0.0.1',
+    'customkeeps-api.onrender.com',
+    '.onrender.com',  # Wildcard for all Render subdomains
+    'customkeeps.vercel.app',
+    '.vercel.app',    # Wildcard for all Vercel subdomains
 ]
 
 INSTALLED_APPS = [
