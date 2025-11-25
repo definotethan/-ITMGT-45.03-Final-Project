@@ -266,7 +266,8 @@ git push origin main
    - Run: `python manage.py createsuperuser`
 
 **Live URLs:**
-- ✅ API: https://customkeeps-api.onrender.com
+- ✅ Site: https://customkeeps.vercel.app
+- ✅ API: https://itmgt-45-03-final-project.onrender.com
 - ✅ Admin: https://customkeeps-api.onrender.com/admin/
 
 ---
@@ -481,6 +482,7 @@ pip install -r requirements.txt
 - **GitHub Repository:** https://github.com/definotethan/-ITMGT-45.03-Final-Project
 
 \\
+
 
 
 
