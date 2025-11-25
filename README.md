@@ -16,7 +16,7 @@ A full-stack e-commerce platform for selling customizable products (tote bags, m
 - Luis Quintos
 - Arianna Chan
 - Harmonie Lin
-- 
+  
 ---
 
 ## ✨ Features
@@ -487,3 +487,4 @@ pip install -r requirements.txt
 ---
 
 **Made with ❤️ by [Your Name] | CustomKeeps © 2025**
+
