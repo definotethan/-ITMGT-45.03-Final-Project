@@ -1,8 +1,43 @@
-import React from "react";
-import { useOrders } from "../context/OrderContext";
+import React, { useEffect, useState } from "react";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function OrdersPage() {
-  const { orders } = useOrders();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/orders/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setOrders(data);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="orders-page">
+        <p style={{ textAlign: 'center', marginTop: '50px' }}>Loading orders...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="orders-page">
@@ -18,11 +53,11 @@ export default function OrdersPage() {
         <>
           <div className="orders-grid">
             {orders.map((order) => (
-              <div key={order.orderId || order.id} className="order-card">
+              <div key={order.id} className="order-card">
                 <div className="order-header">
-                  <span className="order-number">Order #{order.orderId || order.id}</span>
-                  <span className={`order-status status-${order.status.toLowerCase().replace(/ /g, '-')}`}>
-                    {order.status}
+                  <span className="order-number">Order #{order.order_id}</span>
+                  <span className={`order-status status-${order.status.replace(/_/g, '-')}`}>
+                    {order.status.replace(/_/g, ' ')}
                   </span>
                 </div>
 
@@ -31,21 +66,23 @@ export default function OrdersPage() {
                   {order.items && order.items.length > 0 ? (
                     order.items.map((item, index) => (
                       <div key={index} className="order-item">
-                        {item.designImageUrl && (
+                        {item.design_image_url && (
                           <img 
-                            src={item.designImageUrl} 
-                            alt={item.productName}
+                            src={item.design_image_url} 
+                            alt={item.product_name}
                             className="order-item-image"
                           />
                         )}
                         <div className="order-item-info">
-                          <p className="order-item-name">{item.productName}</p>
+                          <p className="order-item-name">{item.product_name}</p>
                           <p className="order-item-quantity">Qty: {item.quantity}</p>
-                          {item.baseColor && (
-                            <p className="order-item-custom">Color: <strong>{item.baseColor}</strong></p>
+                          {item.base_color && (
+                            <p className="order-item-custom">
+                              Color: <strong>{item.base_color}</strong>
+                            </p>
                           )}
-                          {item.customizationText && (
-                            <p className="order-item-custom">"{item.customizationText}"</p>
+                          {item.customization_text && (
+                            <p className="order-item-custom">"{item.customization_text}"</p>
                           )}
                         </div>
                       </div>
@@ -59,17 +96,12 @@ export default function OrdersPage() {
                   <div className="order-detail-row">
                     <span className="detail-label">Total:</span>
                     <span className="detail-value">
-                      ₱{Number(order.total ?? order.total_amount ?? 0).toLocaleString()}
+                      ₱{Number(order.final_amount).toFixed(2)}
                     </span>
                   </div>
                   <div className="order-detail-row">
                     <span className="detail-label">Date:</span>
-                    <span className="detail-value date">
-                      {order.date ||
-                        new Date(order.created_at || Date.now())
-                          .toISOString()
-                          .slice(0, 10)}
-                    </span>
+                    <span className="detail-value date">{order.date}</span>
                   </div>
                 </div>
               </div>

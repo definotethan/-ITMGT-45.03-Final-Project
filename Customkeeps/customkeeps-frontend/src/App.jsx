@@ -9,52 +9,81 @@ import CustomizationForm from "./components/CustomizationForm";
 import { OrderProvider, useOrders } from "./context/OrderContext";
 import logo from './assets/logo.png';
 import logoSmall from './assets/small.png';
-import shirtsImg from './assets/shirts.png';
-import mugsImg from './assets/mugs.png';
-import totesImg from './assets/totes.png';
 
 import "./App.css";
 
-const products = [
-  {
-    id: 1,
-    name: "Custom T-Shirt",
-    price: 500,
-    desc: "Wear your story with personalized designs.",
-    img: shirtsImg,
-  },
-  {
-    id: 2,
-    name: "Custom Mug",
-    price: 300,
-    desc: "Perfect for hot drinks and gifting.",
-    img: mugsImg,
-  },
-  {
-    id: 3,
-    name: "Custom Tote Bag",
-    price: 400,
-    desc: "Eco-friendly and stylish for your daily needs.",
-    img: totesImg,
-  },
-];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function AppInner() {
+  const [products, setProducts] = useState([]);  // ← Changed to state
   const [cartItems, setCartItems] = useState([]);
   const [paymentComplete, setPaymentComplete] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
   const [addToCartMessage, setAddToCartMessage] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { addOrder } = useOrders();
 
+  // Check authentication and fetch data on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     const email = localStorage.getItem("email");
     setIsAuthenticated(!!token);
     if (email) setCurrentUserEmail(email);
+    
+    if (token) {
+      fetchProducts();  // ← Fetch products
+      fetchCartItems();
+    } else {
+      setLoading(false);
+    }
   }, []);
+
+  // Fetch products from backend
+  const fetchProducts = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/products/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Products fetched:', data);
+        setProducts(data);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch cart items from backend
+  const fetchCartItems = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/cart/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Cart items fetched:', data);
+        setCartItems(data);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
 
   const handleRegister = () => {};
 
@@ -62,6 +91,8 @@ function AppInner() {
     setIsAuthenticated(true);
     const email = localStorage.getItem("email");
     if (email) setCurrentUserEmail(email);
+    fetchProducts();  // ← Fetch products after login
+    fetchCartItems();
   };
 
   const handleLogout = () => {
@@ -70,69 +101,148 @@ function AppInner() {
     setIsAuthenticated(false);
     setPaymentComplete(false);
     setCartItems([]);
+    setProducts([]);  // ← Clear products
     setCurrentUserEmail("");
     navigate("/");
   };
 
-  const handleAddToCart = (data) => {
-  const product = products.find((p) => p.name === data.productName);
-  if (!product) return;
+  const handleAddToCart = async (data) => {
+    const product = products.find((p) => p.name === data.productName);
+    if (!product) return;
 
-  const newItem = {
-    id: Date.now(),
-    productName: data.productName,
-    price: product.price,
-    quantity: data.quantity,
-    baseColor: data.baseColor,  // ← ADD THIS LINE
-    customizationText: data.customizationText,
-    designImageUrl: data.designImageUrl,
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/cart/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          product_name: data.productName,
+          price: product.price,
+          quantity: data.quantity,
+          base_color: data.baseColor,
+          customization_text: data.customizationText || '',
+          design_image_url: data.designImageUrl
+        })
+      });
+
+      if (response.ok) {
+        await fetchCartItems();
+        setAddToCartMessage("Item added to cart!");
+        setTimeout(() => setAddToCartMessage(""), 2500);
+        setSelectedProduct(null);
+      } else {
+        console.error("Failed to add to cart");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
-  setCartItems((prev) => [...prev, newItem]);
-  setAddToCartMessage("Item added to cart!");
-  setTimeout(() => setAddToCartMessage(""), 2500);
-  setSelectedProduct(null);
-};
+  const handleBuyNow = async (data) => {
+    const product = products.find((p) => p.name === data.productName);
+    if (!product) return;
 
-const handleBuyNow = (data) => {
-  const product = products.find((p) => p.name === data.productName);
-  if (!product) return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/cart/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          product_name: data.productName,
+          price: product.price,
+          quantity: data.quantity,
+          base_color: data.baseColor,
+          customization_text: data.customizationText || '',
+          design_image_url: data.designImageUrl
+        })
+      });
 
-  const newItem = {
-    id: Date.now(),
-    productName: data.productName,
-    price: product.price,
-    quantity: data.quantity,
-    baseColor: data.baseColor,  // ← ADD THIS LINE
-    customizationText: data.customizationText,
-    designImageUrl: data.designImageUrl,
+      if (response.ok) {
+        await fetchCartItems();  // ← Wait for cart to update
+        setSelectedProduct(null);
+        
+        // Small delay to ensure cart is updated
+        setTimeout(() => {
+          navigate("/cart");
+        }, 100);  // ← Add 100ms delay
+      } else {
+        console.error("Failed to add to cart");
+        alert("Failed to add item to cart. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error in buy now:", error);
+      alert("Error adding item to cart. Please try again.");
+    }
   };
 
-  setCartItems((prev) => [...prev, newItem]);
-  setSelectedProduct(null);
-  navigate("/cart");
-};
 
-  const handleRemoveFromCart = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemoveFromCart = async (itemId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_URL}/api/cart/${itemId}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      await fetchCartItems();
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
   };
 
-  const handlePaymentSuccess = (orderDetails) => {
-    addOrder({
-      orderId: Date.now(),
-      status: "Preparing",
-      total: cartItems.reduce(
-        (sum, item) => sum + item.quantity * item.price,
-        0
-      ),
-      date: new Date().toISOString().slice(0, 10),
-      details: orderDetails,
-      items: cartItems,
-    });
-    setPaymentComplete(true);
-    setCartItems([]);
-    navigate("/orders");
+  const handlePaymentSuccess = async (paymentIntentId, couponCode) => {
+    console.log('=== Payment Success Handler Called ===');
+    console.log('Payment Intent ID:', paymentIntentId);
+    console.log('Coupon Code:', couponCode);
+
+    try {
+      const token = localStorage.getItem("token");
+      console.log('Token:', token ? 'exists' : 'missing');
+
+      const requestBody = {
+        payment_intent_id: paymentIntentId,
+        coupon_code: couponCode || ''
+      };
+      console.log('Request body:', requestBody);
+
+      const response = await fetch(`${API_URL}/api/orders/create_from_cart/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
+      if (response.ok) {
+        console.log('✅ Order created successfully!');
+        await fetchCartItems();
+        setPaymentComplete(true);
+      } else {
+        console.error('❌ Order creation failed:', responseData);
+        alert('Failed to create order: ' + (responseData.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error("❌ Error creating order:", error);
+      alert('Error creating order: ' + error.message);
+    }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -195,36 +305,49 @@ const handleBuyNow = (data) => {
                     </p>
                   </div>
 
-                  <div className="products-row">
-                    {products.map((p) => (
-                      <div className="product-card" key={p.id}>
-                        <div className="product-image-wrapper">
-                          <img src={p.img} alt={p.name} />
-                          <div className="product-overlay">
-                            <button
-                              className="btn-customize"
-                              onClick={() => setSelectedProduct(p)}
-                            >
-                              Customize Now
-                            </button>
+                  {products.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>
+                      No products available. Add products in Django admin.
+                    </p>
+                  ) : (
+                    <div className="products-row">
+                      {products.map((p) => (
+                        <div className="product-card" key={p.id}>
+                          <div className="product-image-wrapper">
+                            {/* Use image_url from backend */}
+                            <img 
+                              src={p.image_url || 'https://via.placeholder.com/400x400?text=No+Image'} 
+                              alt={p.name}
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/400x400?text=Image+Error';
+                              }}
+                            />
+                            <div className="product-overlay">
+                              <button
+                                className="btn-customize"
+                                onClick={() => setSelectedProduct(p)}
+                              >
+                                Customize Now
+                              </button>
+                            </div>
+                          </div>
+                          <div className="product-info">
+                            <h3 className="product-name">{p.name}</h3>
+                            <p className="product-desc">{p.description}</p>
+                            <div className="product-footer">
+                              <span className="product-price">₱{p.price}</span>
+                              <button
+                                className="btn-quick-add"
+                                onClick={() => setSelectedProduct(p)}
+                              >
+                                Customize
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <div className="product-info">
-                          <h3 className="product-name">{p.name}</h3>
-                          <p className="product-desc">{p.desc}</p>
-                          <div className="product-footer">
-                            <span className="product-price">₱{p.price}</span>
-                            <button
-                              className="btn-quick-add"
-                              onClick={() => setSelectedProduct(p)}
-                            >
-                              Customize
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Customization Modal */}
@@ -239,7 +362,13 @@ const handleBuyNow = (data) => {
                       </button>
                       <h2>Customize Your {selectedProduct.name}</h2>
                       <div className="modal-product-preview">
-                        <img src={selectedProduct.img} alt={selectedProduct.name} />
+                        <img 
+                          src={selectedProduct.image_url || 'https://via.placeholder.com/150?text=No+Image'} 
+                          alt={selectedProduct.name}
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/150?text=Error';
+                          }}
+                        />
                         <div>
                           <p className="modal-product-name">{selectedProduct.name}</p>
                           <p className="modal-product-price">₱{selectedProduct.price}</p>

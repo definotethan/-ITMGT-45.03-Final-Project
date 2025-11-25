@@ -39,6 +39,13 @@ export default function CartPage({
     }
   };
 
+  const handlePaymentSuccess = async (paymentIntentId) => {
+    await onPaymentSuccess({
+      paymentIntentId,
+      couponCode: appliedCoupon
+    });
+  };
+
   return (
     <div className="cart-page">
       <h1 className="page-title">Your Shopping Cart</h1>
@@ -56,26 +63,29 @@ export default function CartPage({
             <h2 className="section-subtitle">Cart</h2>
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item-card">
-                {item.designImageUrl && (
+                {/* Check both possible field names for image */}
+                {(item.design_image_url || item.designImageUrl) && (
                   <img 
-                    src={item.designImageUrl} 
-                    alt={item.productName}
+                    src={item.design_image_url || item.designImageUrl} 
+                    alt={item.product_name || item.productName}
                     className="cart-item-image"
                   />
                 )}
                 <div className="cart-item-info">
-                  <h3 className="cart-item-name">{item.productName}</h3>
+                  <h3 className="cart-item-name">
+                    {item.product_name || item.productName}
+                  </h3>
                   <p className="cart-item-details">
                     Qty: {item.quantity} | ₱{item.price} each | Subtotal: <strong>₱{item.quantity * item.price}</strong>
                   </p>
-                  {item.baseColor && (
+                  {(item.base_color || item.baseColor) && (
                     <p className="cart-item-custom">
-                      Color: <strong>{item.baseColor}</strong>
+                      Color: <strong>{item.base_color || item.baseColor}</strong>
                     </p>
                   )}
-                  {item.customizationText && (
+                  {(item.customization_text || item.customizationText) && (
                     <p className="cart-item-custom">
-                      Custom text: <em>{item.customizationText}</em>
+                      Custom text: <em>{item.customization_text || item.customizationText}</em>
                     </p>
                   )}
                 </div>
@@ -127,10 +137,9 @@ export default function CartPage({
           {showPayment && (
             <div className="payment-wrapper">
               <Payment
-                cartItems={cartItems}
-                onPaymentSuccess={onPaymentSuccess}
+                amount={finalAmount}
+                onPaymentSuccess={handlePaymentSuccess}
                 userEmail={userEmail}
-                finalAmount={finalAmount}
                 couponCode={appliedCoupon}
               />
             </div>
