@@ -2,18 +2,27 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
 import os
+import dj_database_url
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # Load environment variables
 load_dotenv(os.path.join(BASE_DIR, ".env"))
+
 
 # Stripe Configuration
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
 
-SECRET_KEY = 'django-insecure-d-lgn^dp_z%c0!1zg3g10jlq9lg_^k(!27#q+qlo%tbffz0nh5'
-DEBUG = True
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-d-lgn^dp_z%c0!1zg3g10jlq9lg_^k(!27#q+qlo%tbffz0nh5')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -24,7 +33,10 @@ ALLOWED_HOSTS = [
     '.vercel.app',    # Wildcard for all Vercel subdomains
 ]
 
+
 INSTALLED_APPS = [
+    'admin_interface',      # Beautiful admin interface - MUST BE FIRST
+    'colorfield',          # Required by admin_interface - MUST BE SECOND
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -32,14 +44,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt',  # Add this
+    'rest_framework_simplejwt',
     'api',
     'corsheaders',
 ]
 
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -48,7 +62,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'customkeeps_backend.urls'
+
 
 TEMPLATES = [
     {
@@ -65,14 +81,27 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'customkeeps_backend.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+# Database - Use PostgreSQL in production, SQLite in development
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -89,12 +118,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-STATIC_URL = 'static/'
+
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Whitenoise settings for production static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # REST Framework Settings
 REST_FRAMEWORK = {
@@ -105,6 +147,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
 
 # JWT Settings
 SIMPLE_JWT = {
@@ -118,14 +161,22 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
+
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://customkeeps.vercel.app",  # Add your deployed frontend URL
+    "https://customkeeps.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-# For development only - remove in production
-# CORS_ALLOW_ALL_ORIGINS = True
+
+# Admin Interface Settings
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+SILENCED_SYSTEM_CHECKS = ['security.W019']
+
+
+# Media files (uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
