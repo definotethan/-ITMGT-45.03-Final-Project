@@ -68,3 +68,13 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=32, unique=True)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, help_text="Percent, like 10 for 10%")
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.code} ({self.discount_percent}%)"

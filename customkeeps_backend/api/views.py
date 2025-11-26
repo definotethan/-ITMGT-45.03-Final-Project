@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 
-from .models import Product, Order, OrderItem, CartItem
+from .models import Product, Order, OrderItem, CartItem, Coupon  # include Coupon
 from .serializers import (
     RegisterSerializer, 
     ProductSerializer, 
@@ -17,10 +17,10 @@ from .serializers import (
 
 import stripe
 import uuid
+from decimal import Decimal
+from django.utils import timezone
 
-# Configure Stripe with your secret key from settings.py
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 # User registration
 class RegisterView(generics.CreateAPIView):
@@ -28,13 +28,11 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
 
-
 # Product CRUD (must be logged in to view)
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
-
 
 # Cart ViewSet
 class CartViewSet(viewsets.ModelViewSet):
@@ -45,39 +43,28 @@ class CartViewSet(viewsets.ModelViewSet):
         return CartItem.objects.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        """
-        Check if EXACT duplicate exists (including design image).
-        Only combine if ALL fields match, otherwise create new item.
-        """
-        # Check for EXACT duplicate (including design image)
         existing_item = CartItem.objects.filter(
             user=request.user,
             product_name=request.data.get('product_name'),
             base_color=request.data.get('base_color'),
             customization_text=request.data.get('customization_text', ''),
-            design_image_url=request.data.get('design_image_url', '')  # ← KEY FIX!
+            design_image_url=request.data.get('design_image_url', '')
         ).first()
 
         if existing_item:
-            # Only increment quantity if EXACT match (same design)
             existing_item.quantity += int(request.data.get('quantity', 1))
             existing_item.save()
             serializer = self.get_serializer(existing_item)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        # No exact match - create NEW item
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        """Attach current user to cart item"""
         serializer.save(user=self.request.user)
 
     @action(detail=False, methods=['delete'])
     def clear(self, request):
-        """Clear entire cart"""
         CartItem.objects.filter(user=request.user).delete()
         return Response({'message': 'Cart cleared'}, status=status.HTTP_204_NO_CONTENT)
-
 
 # Order ViewSet
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
@@ -90,34 +77,43 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     @transaction.atomic
     @action(detail=False, methods=['post'])
     def create_from_cart(self, request):
-        """Create order from current cart after successful payment"""
         print('=== Creating Order from Cart ===')
         print('User:', request.user.username)
         print('Request data:', request.data)
-        
+
         cart_items = CartItem.objects.filter(user=request.user)
         print(f'Cart items count: {cart_items.count()}')
-        
+
         if not cart_items.exists():
             return Response(
                 {'error': 'Cart is empty'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Calculate totals
         total_amount = sum(item.price * item.quantity for item in cart_items)
-        discount_amount = 0
-        coupon_code = request.data.get('coupon_code', '')
+        coupon_code = request.data.get('coupon_code', '').upper()
+        discount_amount = Decimal('0.00')
 
-        # Apply coupon
-        if coupon_code.upper() == 'SAVE10':
-            discount_amount = total_amount * 0.10
+        # Coupon system (dynamic, from admin model)
+        coupon = None
+        if coupon_code:
+            now = timezone.now()
+            try:
+                coupon = Coupon.objects.get(
+                    code__iexact=coupon_code, 
+                    active=True, 
+                    valid_from__lte=now, 
+                    valid_to__gte=now
+                )
+                discount_amount = total_amount * (coupon.discount_percent / Decimal('100'))
+            except Coupon.DoesNotExist:
+                pass  # Invalid/expired - no discount
 
         final_amount = total_amount - discount_amount
-        
+
         print(f'Total: {total_amount}, Discount: {discount_amount}, Final: {final_amount}')
 
-        # Create order
+        # Create order record
         order = Order.objects.create(
             user=request.user,
             order_id=str(uuid.uuid4())[:8].upper(),
@@ -127,11 +123,8 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             coupon_code=coupon_code,
             payment_intent_id=request.data.get('payment_intent_id', '')
         )
-        
         print(f'Order created: {order.order_id}')
 
-        # Create order items from cart
-        order_items_created = 0
         for cart_item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -142,32 +135,18 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                 customization_text=cart_item.customization_text,
                 design_image_url=cart_item.design_image_url
             )
-            order_items_created += 1
-        
-        print(f'Order items created: {order_items_created}')
 
-        # Clear cart after order creation
-        deleted_count = cart_items.count()
         cart_items.delete()
-        print(f'Cart items deleted: {deleted_count}')
-
         serializer = self.get_serializer(order)
         print('Order created successfully!')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-# Stripe payment endpoint
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def pay_view(request):
-    """Create Stripe PaymentIntent"""
     try:
-        # Expecting "amount" (PHP pesos) and optional "coupon_code"
         amount_php = float(request.data.get("amount", 0))
         coupon_code = str(request.data.get("coupon_code", "") or "").upper()
-
-        # Note: Coupon discount is applied on frontend and in final amount
-        # We don't re-apply it here to avoid double discount
         amount_cents = int(amount_php * 100)
 
         if amount_cents <= 0:
@@ -175,8 +154,6 @@ def pay_view(request):
                 {"error": "Invalid payment amount."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        # Create PaymentIntent
         payment_intent = stripe.PaymentIntent.create(
             amount=amount_cents,
             currency="php",
@@ -187,7 +164,6 @@ def pay_view(request):
                 'coupon_code': coupon_code
             }
         )
-
         return Response(
             {
                 "clientSecret": payment_intent["client_secret"],
@@ -195,7 +171,6 @@ def pay_view(request):
             },
             status=status.HTTP_200_OK,
         )
-
     except Exception as e:
         print("Stripe error:", repr(e))
         return Response(

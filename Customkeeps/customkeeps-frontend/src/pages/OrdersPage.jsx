@@ -41,7 +41,7 @@ export default function OrdersPage() {
 
   return (
     <div className="orders-page">
-      <h1 className="page-title">Your Orders History</h1>
+      <h1 className="page-title">Your Order History</h1>
 
       {orders.length === 0 ? (
         <div className="empty-orders-message">
@@ -61,7 +61,6 @@ export default function OrdersPage() {
                   </span>
                 </div>
 
-                {/* Order Items */}
                 <div className="order-items">
                   {order.items && order.items.length > 0 ? (
                     order.items.map((item, index) => (
@@ -94,9 +93,21 @@ export default function OrdersPage() {
 
                 <div className="order-details">
                   <div className="order-detail-row">
-                    <span className="detail-label">Total:</span>
+                    <span className="detail-label">Subtotal:</span>
                     <span className="detail-value">
-                      ₱{Number(order.final_amount).toFixed(2)}
+                      ₱{Number(order.total_amount).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="order-detail-row">
+                    <span className="detail-label">Discount:</span>
+                    <span className="detail-value">
+                      -₱{Number(order.discount_amount).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="order-detail-row">
+                    <span className="detail-label">Total Paid:</span>
+                    <span className="detail-value">
+                      <strong>₱{Number(order.final_amount).toFixed(2)}</strong>
                     </span>
                   </div>
                   <div className="order-detail-row">

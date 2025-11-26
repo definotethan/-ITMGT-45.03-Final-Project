@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Product, CartItem, Order, OrderItem
-
+from .models import Product, CartItem, Order, OrderItem, Coupon
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -96,3 +95,9 @@ class OrderItemAdmin(admin.ModelAdmin):
         return "No image"
     
     image_preview_large.short_description = 'Design Preview'
+
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ['code', 'discount_percent', 'valid_from', 'valid_to', 'active']
+    search_fields = ['code']
+    list_filter = ['active', 'valid_from', 'valid_to']

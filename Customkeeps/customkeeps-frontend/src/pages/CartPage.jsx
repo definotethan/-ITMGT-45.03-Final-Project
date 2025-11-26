@@ -40,10 +40,7 @@ export default function CartPage({
   };
 
   const handlePaymentSuccess = async (paymentIntentId) => {
-    await onPaymentSuccess({
-      paymentIntentId,
-      couponCode: appliedCoupon
-    });
+    await onPaymentSuccess(paymentIntentId, appliedCoupon);
   };
 
   return (
