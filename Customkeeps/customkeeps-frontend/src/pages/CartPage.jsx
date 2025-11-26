@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import Payment from "../components/Payment";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 export default function CartPage({
   cartItems,
   onRemove,
@@ -14,13 +16,11 @@ export default function CartPage({
   const [discountAmount, setDiscountAmount] = useState(0);
 
   const showPayment = cartItems.length > 0;
-
   const cartTotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0),
     [cartItems]
   );
 
-  // Makes an API call to check/discover server coupon and discount info
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       setAppliedCoupon("");
@@ -28,12 +28,8 @@ export default function CartPage({
       setDiscountAmount(0);
       return;
     }
-
-    // REQUEST: this assumes you have an endpoint for preview or you can check with your backend API.
-    // As a fallback, you can simulate by just "trusting" the code and letting backend handle the real discount at order creation.
-    // For a best practice, replace '/api/preview_coupon/' with your actual coupon preview endpoint.
     try {
-      const response = await fetch("/api/preview_coupon/", {
+      const response = await fetch(`${API_URL}/api/preview_coupon/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +59,6 @@ export default function CartPage({
   };
 
   const finalAmount = cartTotal - discountAmount;
-
   const handlePaymentSuccess = async (paymentIntentId) => {
     await onPaymentSuccess(paymentIntentId, appliedCoupon);
   };
@@ -85,7 +80,6 @@ export default function CartPage({
             <h2 className="section-subtitle">Cart</h2>
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item-card">
-                {/* Check both possible field names for image */}
                 {(item.design_image_url || item.designImageUrl) && (
                   <img
                     src={item.design_image_url || item.designImageUrl}
@@ -98,7 +92,8 @@ export default function CartPage({
                     {item.product_name || item.productName}
                   </h3>
                   <p className="cart-item-details">
-                    Qty: {item.quantity} | ₱{item.price} each | Subtotal: <strong>₱{item.quantity * item.price}</strong>
+                    Qty: {item.quantity} | ₱{item.price} each | Subtotal:{" "}
+                    <strong>₱{item.quantity * item.price}</strong>
                   </p>
                   {(item.base_color || item.baseColor) && (
                     <p className="cart-item-custom">
@@ -122,7 +117,7 @@ export default function CartPage({
           <div className="coupon-section">
             <input
               type="text"
-              placeholder="Enter coupon code"
+              placeholder='Enter coupon code (try "SAVE10")'
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               className="coupon-input"

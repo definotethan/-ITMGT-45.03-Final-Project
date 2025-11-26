@@ -15,8 +15,8 @@ export default function OrdersPage() {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/api/orders/`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         }
       });
 
