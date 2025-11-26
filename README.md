@@ -4,7 +4,7 @@ A full-stack e-commerce platform for selling customizable products (tote bags, m
 
 [![Live Demo](https://img.shields.io/badge/Frontend-Live-brightgreen)](https://customkeeps.vercel.app)
 [![Admin Site](https://img.shields.io/badge/API-Live-blue)](https://customkeeps-api.onrender.com/admin/)
-[![Backend API](https://img.shields.io/badge/API-Live-blue)](https://itmgt-45-03-final-project.onrender.com)
+[![Backend API](https://img.shields.io/badge/API-Live-blue)](https://customkeeps-api.onrender.com)
 
 
 ---
@@ -267,7 +267,7 @@ git push origin main
 
 **Live URLs:**
 - ✅ Site: https://customkeeps.vercel.app
-- ✅ API: https://itmgt-45-03-final-project.onrender.com
+- ✅ API: https://customkeeps-api.onrender.com
 - ✅ Admin: https://customkeeps-api.onrender.com/admin/
 
 ---
@@ -482,6 +482,7 @@ pip install -r requirements.txt
 - **GitHub Repository:** https://github.com/definotethan/-ITMGT-45.03-Final-Project
 
 \\
+
 
 
 
