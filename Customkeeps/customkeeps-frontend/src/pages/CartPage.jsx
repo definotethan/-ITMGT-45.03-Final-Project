@@ -11,6 +11,7 @@ export default function CartPage({
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [couponMessage, setCouponMessage] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const showPayment = cartItems.length > 0;
 
@@ -19,25 +20,49 @@ export default function CartPage({
     [cartItems]
   );
 
-  const discountRate = appliedCoupon.toUpperCase() === "SAVE10" ? 0.1 : 0;
-  const discountAmount = cartTotal * discountRate;
-  const finalAmount = cartTotal - discountAmount;
-
-  const handleApplyCoupon = () => {
+  // Makes an API call to check/discover server coupon and discount info
+  const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       setAppliedCoupon("");
       setCouponMessage("Please enter a code.");
+      setDiscountAmount(0);
       return;
     }
 
-    if (couponCode.trim().toUpperCase() === "SAVE10") {
-      setAppliedCoupon("SAVE10");
-      setCouponMessage("✓ Coupon applied: 10% off");
-    } else {
+    // REQUEST: this assumes you have an endpoint for preview or you can check with your backend API.
+    // As a fallback, you can simulate by just "trusting" the code and letting backend handle the real discount at order creation.
+    // For a best practice, replace '/api/preview_coupon/' with your actual coupon preview endpoint.
+    try {
+      const response = await fetch("/api/preview_coupon/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body: JSON.stringify({
+          coupon_code: couponCode,
+          cart_total: cartTotal,
+        }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.valid) {
+        setAppliedCoupon(couponCode.trim());
+        setCouponMessage(`✓ Coupon applied: ${data.discount_percent}% off`);
+        setDiscountAmount(data.discount_amount);
+      } else {
+        setAppliedCoupon("");
+        setCouponMessage(data.error || "Invalid coupon code.");
+        setDiscountAmount(0);
+      }
+    } catch (error) {
       setAppliedCoupon("");
-      setCouponMessage("Invalid coupon code.");
+      setCouponMessage("Failed to validate coupon. Please try again.");
+      setDiscountAmount(0);
     }
   };
+
+  const finalAmount = cartTotal - discountAmount;
 
   const handlePaymentSuccess = async (paymentIntentId) => {
     await onPaymentSuccess(paymentIntentId, appliedCoupon);
@@ -62,8 +87,8 @@ export default function CartPage({
               <div key={item.id} className="cart-item-card">
                 {/* Check both possible field names for image */}
                 {(item.design_image_url || item.designImageUrl) && (
-                  <img 
-                    src={item.design_image_url || item.designImageUrl} 
+                  <img
+                    src={item.design_image_url || item.designImageUrl}
                     alt={item.product_name || item.productName}
                     className="cart-item-image"
                   />
@@ -97,7 +122,7 @@ export default function CartPage({
           <div className="coupon-section">
             <input
               type="text"
-              placeholder="Coupon code (try SAVE10)"
+              placeholder="Enter coupon code"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               className="coupon-input"
@@ -107,7 +132,7 @@ export default function CartPage({
             </button>
           </div>
           {couponMessage && (
-            <p className={`coupon-message ${appliedCoupon ? 'success' : 'error'}`}>
+            <p className={`coupon-message ${appliedCoupon ? "success" : "error"}`}>
               {couponMessage}
             </p>
           )}
@@ -120,7 +145,7 @@ export default function CartPage({
             </div>
             {discountAmount > 0 && (
               <div className="total-row discount">
-                <span>Discount (10%):</span>
+                <span>Discount:</span>
                 <span>-₱{discountAmount.toFixed(2)}</span>
               </div>
             )}

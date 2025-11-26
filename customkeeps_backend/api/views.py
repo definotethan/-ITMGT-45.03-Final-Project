@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 
-from .models import Product, Order, OrderItem, CartItem, Coupon  # include Coupon
+from .models import Product, Order, OrderItem, CartItem, Coupon
 from .serializers import (
     RegisterSerializer, 
     ProductSerializer, 
@@ -140,6 +140,38 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(order)
         print('Order created successfully!')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def preview_coupon(request):
+    print("Received data:", request.data)
+    coupon_code = request.data.get("coupon_code", "").upper()
+    print("Coupon code received:", coupon_code)
+    cart_total = Decimal(str(request.data.get("cart_total", "0")))
+    now = timezone.now()
+    print("Current time (server):", now)
+    try:
+        coupon = Coupon.objects.get(
+            code__iexact=coupon_code,
+            active=True,
+            valid_from__lte=now,
+            valid_to__gte=now
+        )
+        discount_percent = float(coupon.discount_percent)
+        discount_amount = float(cart_total) * (discount_percent / 100)
+        print("Coupon valid. Discount amount:", discount_amount)
+        return Response({
+            "valid": True,
+            "discount_percent": discount_percent,
+            "discount_amount": discount_amount,
+        })
+    except Coupon.DoesNotExist:
+        print("Coupon invalid or expired!")
+        return Response({
+            "valid": False,
+            "error": "Invalid coupon code."
+        }, status=400)
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
