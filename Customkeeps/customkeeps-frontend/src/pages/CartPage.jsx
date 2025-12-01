@@ -23,7 +23,7 @@ export default function CartPage({
     [cartItems]
   );
 
-  // NEW: tiered pricing discount, mirroring backend logic
+  // Tiered pricing discount, mirroring backend logic
   const bulkDiscount = useMemo(() => {
     return cartItems.reduce((sum, item) => {
       const qty = item.quantity;
@@ -55,7 +55,7 @@ export default function CartPage({
         },
         body: JSON.stringify({
           coupon_code: couponCode,
-          cart_total: tieredSubtotal, // use subtotal after bulk discount
+          cart_total: tieredSubtotal, // subtotal AFTER bulk discount
         }),
       });
       const data = await response.json();
@@ -122,7 +122,9 @@ export default function CartPage({
                   {(item.customization_text || item.customizationText) && (
                     <p className="cart-item-custom">
                       Custom text:{" "}
-                      <em>{item.customization_text || item.customizationText}</em>
+                      <em>
+                        {item.customization_text || item.customizationText}
+                      </em>
                     </p>
                   )}
                 </div>
@@ -155,15 +157,13 @@ export default function CartPage({
           {/* Totals */}
           <div className="cart-totals">
             <div className="total-row">
-              <span>Subtotal:</span>
-              <span>₱{tieredSubtotal.toFixed(2)}</span>
+              <span>Subtotal (before discounts):</span>
+              <span>₱{cartTotal.toFixed(2)}</span>
             </div>
-            {bulkDiscount > 0 && (
-              <div className="total-row discount">
-                <span>Bulk Discount:</span>
-                <span>-₱{bulkDiscount.toFixed(2)}</span>
-              </div>
-            )}
+            <div className="total-row discount">
+              <span>Bulk Discount:</span>
+              <span>-₱{bulkDiscount.toFixed(2)}</span>
+            </div>
             {discountAmount > 0 && (
               <div className="total-row discount">
                 <span>Coupon Discount:</span>
