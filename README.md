@@ -229,7 +229,6 @@ CustomKeeps addresses the gap in the Philippine market where traditional print s
 7. **No Real-time Notifications**: Order status changes not sent via email/SMS
 8. **No Product Reviews**: Users cannot review or rate products
 9. **Fixed Product Prices**: Prices are hardcoded per product, no dynamic pricing based on customization complexity
-10. **No Mobile App**: Web-only platform, no native mobile application
 
 ### **Known Bugs**
 - **Cart Persistence**: Cart clears after successful payment even if user navigates back
@@ -255,7 +254,7 @@ CustomKeeps addresses the gap in the Philippine market where traditional print s
 - **Stronger Authentication**: Django's built-in user model + SimpleJWT provided more secure authentication out-of-the-box
 - **Admin Interface**: Django Admin offered immediate product/order management without custom admin panel development
 - **Relational Data**: PostgreSQL better suited for e-commerce transactions requiring ACID compliance
-- **Team Familiarity**: Django was taught in course curriculum, reducing learning curve
+- **Team Familiarity**: Members were already familiar with Django, reducing learning curve
 
 **Impact**: 
 - Faster backend development due to Django's batteries-included approach
@@ -392,3 +391,4 @@ While AI accelerated development, the core understanding of Django REST Framewor
 ---
 
 **Project Team**: Ethan Aquino, Arianna Chan, Paul Kim, Harmonie Lin, Luis Quintos
+
