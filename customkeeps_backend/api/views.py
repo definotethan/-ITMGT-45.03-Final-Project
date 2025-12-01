@@ -1,10 +1,15 @@
-from django.contrib.auth.models import User
+from decimal import Decimal
+import uuid
+
+import stripe
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils import timezone
 
 from rest_framework import generics, viewsets, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Product, Order, OrderItem, CartItem, Coupon
@@ -14,11 +19,6 @@ from .serializers import (
     OrderSerializer,
     CartItemSerializer,
 )
-
-import stripe
-import uuid
-from decimal import Decimal
-from django.utils import timezone
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -37,6 +37,12 @@ def apply_tiered_pricing(unit_price: Decimal, quantity: int) -> Decimal:
 
 
 class RegisterView(generics.CreateAPIView):
+    """
+    Public endpoint for user registration.
+
+    POST /api/register/
+    Body: { "username": "...", "email": "...", "password": "..." }
+    """
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
@@ -69,6 +75,7 @@ class CartViewSet(viewsets.ModelViewSet):
             existing_item.save()
             serializer = self.get_serializer(existing_item)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -77,7 +84,10 @@ class CartViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["delete"])
     def clear(self, request):
         CartItem.objects.filter(user=request.user).delete()
-        return Response({"message": "Cart cleared"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Cart cleared"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 class OrderViewSet(viewsets.ReadOnlyModelViewSet):
@@ -85,7 +95,10 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).prefetch_related("items")
+        return (
+            Order.objects.filter(user=self.request.user)
+            .prefetch_related("items")
+        )
 
     @transaction.atomic
     @action(detail=False, methods=["post"])
@@ -98,7 +111,7 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # 1) Raw subtotal BEFORE any discounts: price * quantity
+        # 1) Raw subtotal BEFORE any discounts
         raw_subtotal = sum(item.price * item.quantity for item in cart_items)
 
         # 2) Subtotal AFTER bulk (tiered) discount
@@ -107,13 +120,12 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         ]
         subtotal_after_bulk = sum(line_totals_after_bulk)
 
-        # Bulk discount is the difference between raw and bulked subtotal
+        # Bulk discount = difference between raw and bulked subtotal
         bulk_discount = raw_subtotal - subtotal_after_bulk
 
         coupon_code = request.data.get("coupon_code", "").upper()
         coupon_discount = Decimal("0.00")
 
-        coupon = None
         if coupon_code:
             now = timezone.now()
             try:
@@ -127,7 +139,9 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                     coupon.discount_percent / Decimal("100")
                 )
             except Coupon.DoesNotExist:
-                pass
+                coupon = None
+        else:
+            coupon = None
 
         # 3) Total discount = bulk + coupon
         total_discount = bulk_discount + coupon_discount
@@ -135,18 +149,18 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         # 4) Final amount actually charged
         final_amount = raw_subtotal - total_discount
 
-        # 5) Persist raw_subtotal as total_amount, and total_discount as discount_amount
+        # 5) Persist order
         order = Order.objects.create(
             user=request.user,
             order_id=str(uuid.uuid4())[:8].upper(),
-            total_amount=raw_subtotal,          # raw subtotal (e.g. 5000)
-            discount_amount=total_discount,     # bulk + coupon (e.g. 950)
-            final_amount=final_amount,          # amount charged (e.g. 4050)
-            coupon_code=coupon_code,
+            total_amount=raw_subtotal,
+            discount_amount=total_discount,
+            final_amount=final_amount,
+            coupon_code=coupon_code if coupon else "",
             payment_intent_id=request.data.get("payment_intent_id", ""),
         )
 
-        # When saving items, still store the effective per‑unit price AFTER bulk
+        # Save items with effective per‑unit price AFTER bulk discount
         for cart_item in cart_items:
             line_total_after_bulk = apply_tiered_pricing(
                 cart_item.price, cart_item.quantity
@@ -174,6 +188,7 @@ def preview_coupon(request):
     coupon_code = request.data.get("coupon_code", "").upper()
     cart_total = Decimal(str(request.data.get("cart_total", "0")))
     now = timezone.now()
+
     try:
         coupon = Coupon.objects.get(
             code__iexact=coupon_code,
@@ -192,11 +207,8 @@ def preview_coupon(request):
         )
     except Coupon.DoesNotExist:
         return Response(
-            {
-                "valid": False,
-                "error": "Invalid coupon code.",
-            },
-            status=400,
+            {"valid": False, "error": "Invalid coupon code."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -213,6 +225,7 @@ def pay_view(request):
                 {"error": "Invalid payment amount."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         payment_intent = stripe.PaymentIntent.create(
             amount=amount_cents,
             currency="php",
