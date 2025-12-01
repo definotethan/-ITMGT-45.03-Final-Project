@@ -7,6 +7,11 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.URLField(blank=True, null=True)
+    template_image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional Imgur link for the design template preview"
+    )
 
     def __str__(self):
         return self.name
@@ -68,6 +73,7 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
+
 
 class Coupon(models.Model):
     code = models.CharField(max_length=32, unique=True)

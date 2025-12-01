@@ -16,10 +16,28 @@ export default function CartPage({
   const [discountAmount, setDiscountAmount] = useState(0);
 
   const showPayment = cartItems.length > 0;
+
+  // Base cart total (before any discounts)
   const cartTotal = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0),
     [cartItems]
   );
+
+  // NEW: tiered pricing discount, mirroring backend logic
+  const bulkDiscount = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const qty = item.quantity;
+      const lineSubtotal = item.price * qty;
+
+      let rate = 0;
+      if (qty >= 10) rate = 0.10;
+      else if (qty >= 5) rate = 0.05;
+
+      return sum + lineSubtotal * rate;
+    }, 0);
+  }, [cartItems]);
+
+  const tieredSubtotal = cartTotal - bulkDiscount;
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -37,7 +55,7 @@ export default function CartPage({
         },
         body: JSON.stringify({
           coupon_code: couponCode,
-          cart_total: cartTotal,
+          cart_total: tieredSubtotal, // use subtotal after bulk discount
         }),
       });
       const data = await response.json();
@@ -58,7 +76,8 @@ export default function CartPage({
     }
   };
 
-  const finalAmount = cartTotal - discountAmount;
+  const finalAmount = tieredSubtotal - discountAmount;
+
   const handlePaymentSuccess = async (paymentIntentId) => {
     await onPaymentSuccess(paymentIntentId, appliedCoupon);
   };
@@ -102,7 +121,8 @@ export default function CartPage({
                   )}
                   {(item.customization_text || item.customizationText) && (
                     <p className="cart-item-custom">
-                      Custom text: <em>{item.customization_text || item.customizationText}</em>
+                      Custom text:{" "}
+                      <em>{item.customization_text || item.customizationText}</em>
                     </p>
                   )}
                 </div>
@@ -136,11 +156,17 @@ export default function CartPage({
           <div className="cart-totals">
             <div className="total-row">
               <span>Subtotal:</span>
-              <span>₱{cartTotal.toFixed(2)}</span>
+              <span>₱{tieredSubtotal.toFixed(2)}</span>
             </div>
+            {bulkDiscount > 0 && (
+              <div className="total-row discount">
+                <span>Bulk Discount:</span>
+                <span>-₱{bulkDiscount.toFixed(2)}</span>
+              </div>
+            )}
             {discountAmount > 0 && (
               <div className="total-row discount">
-                <span>Discount:</span>
+                <span>Coupon Discount:</span>
                 <span>-₱{discountAmount.toFixed(2)}</span>
               </div>
             )}

@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Product, CartItem, Order, OrderItem, Coupon
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'description']
+    list_display = ['name', 'price', 'description', 'template_image_url']
     search_fields = ['name']
 
 
@@ -23,17 +24,16 @@ class CartItemAdmin(admin.ModelAdmin):
                 obj.design_image_url
             )
         return "No image"
-    
+
     image_preview.short_description = 'Design Preview'
 
 
-# Inline admin for OrderItems (shows items within an order)
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ['product_name', 'price', 'quantity', 'base_color', 'customization_text', 'image_preview']
     can_delete = False
-    
+
     def image_preview(self, obj):
         """Display thumbnail of design image in inline"""
         if obj.design_image_url:
@@ -42,7 +42,7 @@ class OrderItemInline(admin.TabularInline):
                 obj.design_image_url
             )
         return "No image"
-    
+
     image_preview.short_description = 'Design'
 
 
@@ -52,8 +52,8 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ['status', 'created_at']
     search_fields = ['order_id', 'user__username']
     readonly_fields = ['order_id', 'created_at', 'updated_at', 'payment_intent_id']
-    inlines = [OrderItemInline]  # Show order items inside order detail page
-    
+    inlines = [OrderItemInline]
+
     fieldsets = (
         ('Order Information', {
             'fields': ('order_id', 'user', 'status')
@@ -82,7 +82,7 @@ class OrderItemAdmin(admin.ModelAdmin):
                 obj.design_image_url
             )
         return "No image"
-    
+
     image_preview.short_description = 'Design'
 
     def image_preview_large(self, obj):
@@ -93,8 +93,9 @@ class OrderItemAdmin(admin.ModelAdmin):
                 obj.design_image_url
             )
         return "No image"
-    
+
     image_preview_large.short_description = 'Design Preview'
+
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):

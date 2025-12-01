@@ -7,15 +7,15 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import CustomizationForm from "./components/CustomizationForm";
 import { OrderProvider, useOrders } from "./context/OrderContext";
-import logo from './assets/logo.png';
-import logoSmall from './assets/small.png';
+import logo from "./assets/logo.png";
+import logoSmall from "./assets/small.png";
 
 import "./App.css";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 function AppInner() {
-  const [products, setProducts] = useState([]);  // ← Changed to state
+  const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [paymentComplete, setPaymentComplete] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,38 +23,38 @@ function AppInner() {
   const [addToCartMessage, setAddToCartMessage] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
   const navigate = useNavigate();
   const { addOrder } = useOrders();
 
-  // Check authentication and fetch data on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     const email = localStorage.getItem("email");
     setIsAuthenticated(!!token);
     if (email) setCurrentUserEmail(email);
-    
+
     if (token) {
-      fetchProducts();  // ← Fetch products
+      fetchProducts();
       fetchCartItems();
     } else {
       setLoading(false);
     }
   }, []);
 
-  // Fetch products from backend
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/api/products/`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Products fetched:', data);
+        console.log("Products fetched:", data);
         setProducts(data);
       }
     } catch (error) {
@@ -64,20 +64,19 @@ function AppInner() {
     }
   };
 
-  // Fetch cart items from backend
   const fetchCartItems = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/api/cart/`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Cart items fetched:', data);
+        console.log("Cart items fetched:", data);
         setCartItems(data);
       }
     } catch (error) {
@@ -91,7 +90,7 @@ function AppInner() {
     setIsAuthenticated(true);
     const email = localStorage.getItem("email");
     if (email) setCurrentUserEmail(email);
-    fetchProducts();  // ← Fetch products after login
+    fetchProducts();
     fetchCartItems();
   };
 
@@ -101,8 +100,9 @@ function AppInner() {
     setIsAuthenticated(false);
     setPaymentComplete(false);
     setCartItems([]);
-    setProducts([]);  // ← Clear products
+    setProducts([]);
     setCurrentUserEmail("");
+    setIsMobileNavOpen(false);
     navigate("/");
   };
 
@@ -113,19 +113,19 @@ function AppInner() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/api/cart/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           product_name: data.productName,
           price: product.price,
           quantity: data.quantity,
           base_color: data.baseColor,
-          customization_text: data.customizationText || '',
-          design_image_url: data.designImageUrl
-        })
+          customization_text: data.customizationText || "",
+          design_image_url: data.designImageUrl,
+        }),
       });
 
       if (response.ok) {
@@ -148,29 +148,28 @@ function AppInner() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/api/cart/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           product_name: data.productName,
           price: product.price,
           quantity: data.quantity,
           base_color: data.baseColor,
-          customization_text: data.customizationText || '',
-          design_image_url: data.designImageUrl
-        })
+          customization_text: data.customizationText || "",
+          design_image_url: data.designImageUrl,
+        }),
       });
 
       if (response.ok) {
-        await fetchCartItems();  // ← Wait for cart to update
+        await fetchCartItems();
         setSelectedProduct(null);
-        
-        // Small delay to ensure cart is updated
+
         setTimeout(() => {
           navigate("/cart");
-        }, 100);  // ← Add 100ms delay
+        }, 100);
       } else {
         console.error("Failed to add to cart");
         alert("Failed to add item to cart. Please try again.");
@@ -181,17 +180,16 @@ function AppInner() {
     }
   };
 
-
   const handleRemoveFromCart = async (itemId) => {
     try {
       const token = localStorage.getItem("token");
       await fetch(`${API_URL}/api/cart/${itemId}/`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       await fetchCartItems();
     } catch (error) {
       console.error("Error removing item:", error);
@@ -199,46 +197,50 @@ function AppInner() {
   };
 
   const handlePaymentSuccess = async (paymentIntentId, couponCode) => {
-    console.log('=== Payment Success Handler Called ===');
-    console.log('Payment Intent ID:', paymentIntentId);
-    console.log('Coupon Code:', couponCode);
+    console.log("=== Payment Success Handler Called ===");
+    console.log("Payment Intent ID:", paymentIntentId);
+    console.log("Coupon Code:", couponCode);
 
     try {
       const token = localStorage.getItem("token");
-      console.log('Token:', token ? 'exists' : 'missing');
+      console.log("Token:", token ? "exists" : "missing");
 
       const requestBody = {
         payment_intent_id: paymentIntentId,
-        coupon_code: couponCode || ''
+        coupon_code: couponCode || "",
       };
-      console.log('Request body:', requestBody);
+      console.log("Request body:", requestBody);
 
       const response = await fetch(`${API_URL}/api/orders/create_from_cart/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
-      console.log('Response status:', response.status);
+      console.log("Response status:", response.status);
       const responseData = await response.json();
-      console.log('Response data:', responseData);
+      console.log("Response data:", responseData);
 
       if (response.ok) {
-        console.log('✅ Order created successfully!');
+        console.log("✅ Order created successfully!");
         await fetchCartItems();
         setPaymentComplete(true);
       } else {
-        console.error('❌ Order creation failed:', responseData);
-        alert('Failed to create order: ' + (responseData.error || 'Unknown error'));
+        console.error("❌ Order creation failed:", responseData);
+        alert(
+          "Failed to create order: " + (responseData.error || "Unknown error")
+        );
       }
     } catch (error) {
       console.error("❌ Error creating order:", error);
-      alert('Error creating order: ' + error.message);
+      alert("Error creating order: " + error.message);
     }
   };
+
+  const closeMobileNav = () => setIsMobileNavOpen(false);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -248,39 +250,68 @@ function AppInner() {
     <div>
       {/* NAVBAR */}
       <nav className="navbar">
-        <Link to="/" className="nav-brand">
+        <Link to="/" className="nav-brand" onClick={closeMobileNav}>
           <img src={logoSmall} alt="CustomKeeps" className="nav-logo" />
         </Link>
-        {isAuthenticated ? (
-          <span className="nav-links">
+
+        {/* Desktop links */}
+        <span className="nav-links">
+          {isAuthenticated ? (
+            <>
+              <Link to="/" className="nav-link-btn">
+                Home
+              </Link>
+              <Link to="/cart" className="nav-link-btn">
+                Cart ({cartItems.length})
+              </Link>
+              <Link to="/orders" className="nav-link-btn">
+                Orders
+              </Link>
+              <button className="logout-btn-nav" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
             <Link to="/" className="nav-link-btn">
               Home
             </Link>
-            <Link to="/cart" className="nav-link-btn">
-              Cart ({cartItems.length})
-            </Link>
-            <Link to="/orders" className="nav-link-btn">
-              Orders
-            </Link>
-            <button className="logout-btn-nav" onClick={handleLogout}>
-              Logout
-            </button>
-          </span>
-        ) : (
-          <span className="nav-links">
-            <Link to="/" className="nav-link-btn">
-              Home
-            </Link>
-          </span>
-        )}
+          )}
+        </span>
+
+        {/* Mobile hamburger */}
+        <button
+          className="nav-toggle"
+          type="button"
+          onClick={() => setIsMobileNavOpen((prev) => !prev)}
+        >
+          <span className="nav-toggle-bar" />
+          <span className="nav-toggle-bar" />
+          <span className="nav-toggle-bar" />
+        </button>
       </nav>
+
+      {/* Mobile menu */}
+      {isAuthenticated && isMobileNavOpen && (
+        <div className="nav-links-mobile">
+          <Link to="/" className="nav-link-btn" onClick={closeMobileNav}>
+            Home
+          </Link>
+          <Link to="/cart" className="nav-link-btn" onClick={closeMobileNav}>
+            Cart ({cartItems.length})
+          </Link>
+          <Link to="/orders" className="nav-link-btn" onClick={closeMobileNav}>
+            Orders
+          </Link>
+          <button className="logout-btn-nav" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      )}
 
       {/* Global Success Message */}
       {addToCartMessage && (
         <div className="global-success-message">
-          <div className="success-toast">
-            ✓ {addToCartMessage}
-          </div>
+          <div className="success-toast">✓ {addToCartMessage}</div>
         </div>
       )}
 
@@ -291,12 +322,14 @@ function AppInner() {
           element={
             isAuthenticated ? (
               <div className="main-container">
-                {/* Hero Section with Logo */}
                 <div className="hero-section">
-                  <img src={logo} alt="CustomKeeps - Wear Your Story" className="hero-logo" />
+                  <img
+                    src={logo}
+                    alt="CustomKeeps - Wear Your Story"
+                    className="hero-logo"
+                  />
                 </div>
 
-                {/* Products Section */}
                 <div className="products-section">
                   <div className="section-header">
                     <h2 className="section-title">Our Products</h2>
@@ -306,7 +339,13 @@ function AppInner() {
                   </div>
 
                   {products.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>
+                    <p
+                      style={{
+                        textAlign: "center",
+                        color: "#666",
+                        marginTop: "40px",
+                      }}
+                    >
                       No products available. Add products in Django admin.
                     </p>
                   ) : (
@@ -314,12 +353,15 @@ function AppInner() {
                       {products.map((p) => (
                         <div className="product-card" key={p.id}>
                           <div className="product-image-wrapper">
-                            {/* Use image_url from backend */}
-                            <img 
-                              src={p.image_url || 'https://via.placeholder.com/400x400?text=No+Image'} 
+                            <img
+                              src={
+                                p.image_url ||
+                                "https://via.placeholder.com/400x400?text=No+Image"
+                              }
                               alt={p.name}
                               onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/400x400?text=Image+Error';
+                                e.target.src =
+                                  "https://via.placeholder.com/400x400?text=Image+Error";
                               }}
                             />
                             <div className="product-overlay">
@@ -350,7 +392,6 @@ function AppInner() {
                   )}
                 </div>
 
-                {/* Customization Modal */}
                 {selectedProduct && (
                   <div className="customization-modal-overlay">
                     <div className="customization-modal">
@@ -362,22 +403,30 @@ function AppInner() {
                       </button>
                       <h2>Customize Your {selectedProduct.name}</h2>
                       <div className="modal-product-preview">
-                        <img 
-                          src={selectedProduct.image_url || 'https://via.placeholder.com/150?text=No+Image'} 
+                        <img
+                          src={
+                            selectedProduct.image_url ||
+                            "https://via.placeholder.com/150?text=No+Image"
+                          }
                           alt={selectedProduct.name}
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/150?text=Error';
+                            e.target.src =
+                              "https://via.placeholder.com/150?text=Error";
                           }}
                         />
                         <div>
-                          <p className="modal-product-name">{selectedProduct.name}</p>
-                          <p className="modal-product-price">₱{selectedProduct.price}</p>
+                          <p className="modal-product-name">
+                            {selectedProduct.name}
+                          </p>
+                          <p className="modal-product-price">
+                            ₱{selectedProduct.price}
+                          </p>
                         </div>
                       </div>
-                      <CustomizationForm 
+                      <CustomizationForm
                         onSubmit={handleAddToCart}
                         onBuyNow={handleBuyNow}
-                        preSelectedProduct={selectedProduct.name}
+                        preSelectedProduct={selectedProduct}
                       />
                     </div>
                   </div>

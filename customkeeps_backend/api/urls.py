@@ -1,12 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    RegisterView, 
-    ProductViewSet, 
+    RegisterView,
+    ProductViewSet,
     OrderViewSet,
     CartViewSet,
     pay_view,
-    preview_coupon
+    preview_coupon,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
