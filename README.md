@@ -1,489 +1,394 @@
-# 🎨 CustomKeeps - Custom Product E-Commerce Platform
+# CustomKeeps: Wear Your Story
 
-A full-stack e-commerce platform for selling customizable products (tote bags, mugs, t-shirts, etc.) with integrated payment processing and order management.
-
-[![Live Demo](https://img.shields.io/badge/Frontend-Live-brightgreen)](https://customkeeps.vercel.app)
-[![Admin Site](https://img.shields.io/badge/API-Live-blue)](https://customkeeps-api.onrender.com/admin/)
-[![Backend API](https://img.shields.io/badge/API-Live-blue)](https://customkeeps-api.onrender.com)
-
+**README Documentation - Final Project Submission**
 
 ---
 
-## 👥 Team 
+## Tech Stack & Versions
 
-- Ethan Aquino
-- Paul Kim
-- Luis Quintos
-- Arianna Chan
-- Harmonie Lin
-  
----
+### **Backend**
+- **Django** 5.2.8 - Web framework
+- **Django REST Framework** 3.16.1 - API development
+- **djangorestframework-simplejwt** 5.5.1 - JWT authentication
+- **PostgreSQL** (via psycopg2-binary 2.9.11) - Production database
+- **SQLite3** - Local development database
+- **Stripe** 14.0.1 - Payment processing
+- **django-cors-headers** 4.9.0 - CORS middleware
+- **django-admin-interface** 0.31.0 - Enhanced admin UI
+- **Gunicorn** 23.0.0 - Production WSGI server
+- **WhiteNoise** 6.11.0 - Static file serving
+- **python-dotenv** 1.2.1 - Environment variable management
 
-## ✨ Features
+### **Frontend**
+- **React** 19.2.0 - UI framework
+- **React Router DOM** 7.9.6 - Client-side routing
+- **Vite** 7.2.4 - Build tool and dev server
+- **@stripe/stripe-js** 8.5.2 - Stripe integration
+- **@stripe/react-stripe-js** 5.4.0 - Stripe React components
+- **react-hook-form** 7.66.1 - Form validation
+- **Axios** 1.13.2 - HTTP client
 
-- 🛍️ **Product Catalog** - Browse customizable products (tote bags, mugs, t-shirts)
-- 🎨 **Product Customization** - Add custom text, images, and designs to products
-- 🛒 **Shopping Cart** - Add/remove items, adjust quantities, persistent cart storage
-- 💳 **Stripe Checkout** - Secure payment processing with Stripe integration
-- 👤 **User Authentication** - JWT-based login/register system with secure tokens
-- 📦 **Order Management** - Track orders and view complete order history
-- 🎯 **Admin Dashboard** - Beautiful admin interface for managing products and orders
-- 📱 **Responsive Design** - Mobile-friendly UI that works on all devices
-- 🔒 **Secure** - Environment variables for sensitive data, CORS protection
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Framework:** React 18 + Vite
-- **Routing:** React Router v6
-- **Styling:** CSS3 + Modern Design
-- **HTTP Client:** Axios with interceptors
-- **Payment:** Stripe.js
-- **State Management:** React Context API
-- **Deployment:** Vercel
-
-### Backend
-- **Framework:** Django 5.1.3
-- **API:** Django REST Framework 3.14.0
-- **Authentication:** JWT (djangorestframework-simplejwt)
-- **Database:** SQLite (development) / PostgreSQL (production)
-- **Payment:** Stripe API integration
-- **Admin UI:** django-admin-interface with custom theming
-- **Static Files:** WhiteNoise for production serving
-- **CORS:** django-cors-headers for cross-origin requests
-- **Deployment:** Render
-
-### Rationale
-The tech stack was updated from the previous GC2 version to this final project in order to improve scalability, maintainability, and the overall user experience.
-
-During GC2, we utilized simpler technologies better suited for rapid prototyping and experimentation. For the final project, we adopted React (with Vite) and Django REST Framework to leverage modern, industry-standard tools that offer significantly improved performance, easier component-based development, and robust API capabilities for future growth. Stripe integration was added for secure, real-world payment processing. The enhanced admin interface and deployment changes were also made to ensure this application is ready for production use across devices and platforms.
+### **Deployment**
+- **Backend**: Render (customkeeps-api.onrender.com)
+- **Frontend**: Vercel (customkeeps.vercel.app)
+- **Database**: PostgreSQL (Render)
 
 ---
 
-## 📁 Project Structure
+## Setup & Deployment Instructions
 
-```
-Customkeeps/
-├── customkeeps_frontend/              # React Frontend (Vercel)
-│   ├── src/
-│   │   ├── components/               # Reusable React components
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── ProductCard.jsx
-│   │   │   └── Cart.jsx
-│   │   ├── pages/                   # Page components (routes)
-│   │   │   ├── Home.jsx
-│   │   │   ├── ProductCustomizer.jsx
-│   │   │   ├── CartPage.jsx
-│   │   │   ├── Payment.jsx
-│   │   │   ├── OrdersPage.jsx
-│   │   │   ├── Login.jsx
-│   │   │   └── Register.jsx
-│   │   ├── context/                 # Global state management
-│   │   │   └── OrderContext.jsx
-│   │   ├── App.jsx                  # Main app component with routing
-│   │   ├── main.jsx                 # React entry point
-│   │   └── index.css                # Global styles
-│   ├── public/                      # Static assets
-│   ├── package.json
-│   └── vite.config.js
-│
-├── customkeeps_backend/              # Django Backend (Render)
-│   ├── api/                         # Main API application
-│   │   ├── models.py               # Database models (Product, Order, Cart)
-│   │   ├── views.py                # API view functions
-│   │   ├── serializers.py          # DRF serializers for validation
-│   │   ├── urls.py                 # API endpoint routes
-│   │   └── admin.py                # Django admin configuration
-│   ├── customkeeps_backend/
-│   │   ├── settings.py             # Django configuration
-│   │   ├── urls.py                 # Main URL routing
-│   │   └── wsgi.py                 # WSGI application
-│   ├── manage.py                   # Django management script
-│   ├── requirements.txt            # Python dependencies
-│   └── .env                        # Environment variables (local)
-│
-└── README.md                        # This file
-```
+### **Local Development Setup**
 
----
-
-## 🚀 Installation
-
-### Prerequisites
-
-- **Node.js** 18+ and npm
-- **Python** 3.10+
-- **Git**
-- **Stripe Account** (for payment processing)
-
-### Clone Repository
-
-```bash
-git clone https://github.com/definotethan/-ITMGT-45.03-Final-Project.git
-cd Customkeeps
-```
-
----
-
-## 🔧 Environment Variables
-
-### Backend (.env)
-
-Create a `.env` file in `customkeeps_backend/` directory:
-
-```env
-# Django Settings
-DJANGO_SECRET_KEY=your-secret-key-here
-DEBUG=True
-
-# Stripe API Keys (get from https://dashboard.stripe.com)
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
-STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
-
-# Database URL (Production only - Render provides this automatically)
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-```
-
-### Get Your Stripe Keys
-
-1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
-2. Click "Developers" → "API keys"
-3. Copy your "Publishable key" and "Secret key" (use **test keys** for development)
-4. Add them to your `.env` file
-
----
-
-## 💻 Running Locally
-
-### Backend Setup
-
+#### **Backend Setup**
 ```bash
 # Navigate to backend directory
 cd customkeeps_backend
 
-# Install all Python dependencies
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Apply database migrations
+# Create .env file with the following variables:
+STRIPE_SECRET_KEY=your_stripe_secret_key
+CURRENCY=php
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+SECRET_KEY=your_django_secret_key
+
+# Run migrations
 python manage.py migrate
 
-# Create superuser account (for admin access)
+# Create superuser for admin access
 python manage.py createsuperuser
-# Enter username, email, and password when prompted
-
-# Collect static files
-python manage.py collectstatic --noinput
 
 # Start development server
 python manage.py runserver
 ```
 
-**Backend URLs:**
-- ✅ API: http://localhost:8000/api/
-- ✅ Admin Panel: http://localhost:8000/admin/
-- ✅ API Root: http://localhost:8000/
-
-### Frontend Setup
-
-Open a new terminal window:
-
+#### **Frontend Setup**
 ```bash
 # Navigate to frontend directory
-cd customkeeps_frontend
+cd customkeeps-frontend
 
-# Install JavaScript dependencies
+# Install dependencies
 npm install
+
+# Create .env file with:
+VITE_API_URL=http://localhost:8000
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 
 # Start development server
 npm run dev
 ```
 
-**Frontend URL:**
-- ✅ Application: http://localhost:5173
+### **Production Deployment**
+
+#### **Backend (Render)**
+1. Connect GitHub repository to Render
+2. Set environment variables:
+   - `DATABASE_URL` (auto-provided by Render PostgreSQL)
+   - `DJANGO_SECRET_KEY`
+   - `STRIPE_SECRET_KEY`
+   - `DEBUG=False`
+3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+4. Start command: `gunicorn customkeeps_backend.wsgi:application`
+
+#### **Frontend (Vercel)**
+1. Connect GitHub repository to Vercel
+2. Set environment variables:
+   - `VITE_API_URL=https://customkeeps-api.onrender.com`
+   - `VITE_STRIPE_PUBLISHABLE_KEY`
+3. Build command: `npm run build`
+4. Output directory: `dist`
+5. Add `vercel.json` for SPA routing (already included)
 
 ---
 
-## 🌐 Deployment
+## API Documentation
 
-### Frontend Deployment (Vercel)
+### **Authentication**
 
-1. Push your code to GitHub:
-```bash
-git add .
-git commit -m "Initial commit: CustomKeeps project"
-git push origin main
-```
+#### **Register User**
+- **POST** `/api/register/`
+- **Body**: `{ "username": "string", "email": "string", "password": "string" }`
+- **Response**: `{ "id": 1, "username": "string", "email": "string" }`
 
-2. Go to [Vercel Dashboard](https://vercel.com)
-3. Click "New Project"
-4. Import your GitHub repository
-5. Configure deployment settings:
-   - **Root Directory:** `customkeeps_frontend`
-   - **Framework Preset:** Vite
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-6. Click "Deploy"
+#### **Login**
+- **POST** `/api/token/`
+- **Body**: `{ "username": "string", "password": "string" }`
+- **Response**: `{ "access": "jwt_token", "refresh": "refresh_token" }`
 
-**Live URL:** https://customkeeps.vercel.app
+#### **Refresh Token**
+- **POST** `/api/token/refresh/`
+- **Body**: `{ "refresh": "refresh_token" }`
+- **Response**: `{ "access": "new_jwt_token" }`
 
-### Backend Deployment (Render)
+### **Products**
 
-1. Push your code to GitHub (if not already done)
+#### **List Products**
+- **GET** `/api/products/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Response**: Array of product objects
 
-2. Go to [Render Dashboard](https://render.com)
+### **Cart**
 
-3. Click "New +" → "Web Service"
+#### **Get Cart Items**
+- **GET** `/api/cart/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Response**: Array of cart items
 
-4. Connect your GitHub repository and select the branch
-
-5. Configure the service:
-   - **Name:** `customkeeps-api`
-   - **Root Directory:** `customkeeps_backend`
-   - **Environment:** Python 3
-   - **Build Command:**
-     ```bash
-     pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --no-input
-     ```
-   - **Start Command:**
-     ```bash
-     gunicorn customkeeps_backend.wsgi:application
-     ```
-
-6. Add Environment Variables in Render Dashboard:
-   - `DJANGO_SECRET_KEY`: Generate a new secure key (don't use dev key)
-   - `DEBUG`: `False`
-   - `ALLOWED_HOSTS`: `customkeeps-api.onrender.com,.onrender.com,customkeeps.vercel.app`
-   - `STRIPE_SECRET_KEY`: Your Stripe secret key
-   - `STRIPE_PUBLISHABLE_KEY`: Your Stripe publishable key
-
-7. Click "Create Web Service"
-
-8. Once deployed, create a superuser in Render Shell:
-   - Open your service dashboard
-   - Click "Shell" tab
-   - Run: `python manage.py createsuperuser`
-
-**Live URLs:**
-- ✅ Site: https://customkeeps.vercel.app
-- ✅ API: https://customkeeps-api.onrender.com
-- ✅ Admin: https://customkeeps-api.onrender.com/admin/
-
----
-
-## 📡 API Endpoints
-
-### Authentication
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/register/` | Register new user account | No |
-| POST | `/api/login/` | Login user and get JWT tokens | No |
-| POST | `/api/token/refresh/` | Refresh expired access token | Yes |
-
-**Example: Login Request**
+#### **Add to Cart**
+- **POST** `/api/cart/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Body**: 
 ```json
-POST /api/login/
 {
-  "username": "user123",
-  "password": "securepassword"
+  "product_name": "string",
+  "price": "decimal",
+  "quantity": "integer",
+  "base_color": "string",
+  "customization_text": "string",
+  "design_image_url": "base64_string"
 }
 ```
 
-**Response:**
-```json
-{
-  "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-}
-```
+#### **Remove from Cart**
+- **DELETE** `/api/cart/{id}/`
+- **Headers**: `Authorization: Bearer {access_token}`
 
-### Products
+#### **Clear Cart**
+- **DELETE** `/api/cart/clear/`
+- **Headers**: `Authorization: Bearer {access_token}`
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/products/` | List all products | No |
-| GET | `/api/products/{id}/` | Get product details | No |
-| POST | `/api/products/` | Create new product | Admin only |
-| PUT | `/api/products/{id}/` | Update product | Admin only |
-| DELETE | `/api/products/{id}/` | Delete product | Admin only |
+### **Orders**
 
-**Example Product Response:**
-```json
-{
-  "id": 1,
-  "name": "Custom Tote Bag",
-  "description": "100% cotton customizable tote bag",
-  "price": "19.99",
-  "category": "Tote Bag",
-  "image_url": "https://i.imgur.com/example.jpg",
-  "created_at": "2025-11-25T12:00:00Z"
-}
-```
+#### **Get User Orders**
+- **GET** `/api/orders/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Response**: Array of order objects with items
 
-### Cart
+#### **Create Order from Cart**
+- **POST** `/api/orders/create_from_cart/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Body**: `{ "payment_intent_id": "string", "coupon_code": "string" }`
+- **Response**: Order object with items
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/cart/` | Get user's cart items | Yes |
-| POST | `/api/cart/` | Add item to cart | Yes |
-| PUT | `/api/cart/{id}/` | Update cart item quantity | Yes |
-| DELETE | `/api/cart/{id}/` | Remove item from cart | Yes |
+### **Payment**
 
-### Orders
+#### **Create Payment Intent**
+- **POST** `/api/checkout/pay/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Body**: `{ "amount": "float", "coupon_code": "string" }`
+- **Response**: `{ "clientSecret": "string", "paymentIntentId": "string" }`
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/orders/` | Get user's order history | Yes |
-| POST | `/api/orders/` | Create new order | Yes |
-| GET | `/api/orders/{id}/` | Get order details | Yes |
+### **Coupons**
 
-### Payment
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/create-checkout-session/` | Create Stripe checkout session | Yes |
-
-**Example Checkout Request:**
-```json
-POST /api/create-checkout-session/
-{
-  "items": [
-    {
-      "product_id": 1,
-      "quantity": 2,
-      "customization": "Custom Text Here"
-    }
-  ]
-}
-```
+#### **Preview Coupon**
+- **POST** `/api/preview_coupon/`
+- **Headers**: `Authorization: Bearer {access_token}`
+- **Body**: `{ "coupon_code": "string", "cart_total": "decimal" }`
+- **Response**: `{ "valid": true, "discount_percent": 10, "discount_amount": 100 }`
 
 ---
 
-## 🎨 Admin Panel
+## Business Concept Summary
 
-Access the beautiful admin dashboard at:
+**CustomKeeps** is a print-on-demand e-commerce platform that empowers Filipino young adults, students, small groups, and SMEs to create affordable, personalized merchandise without minimum order requirements.
 
-- **Local Development:** http://localhost:8000/admin/
-- **Production:** https://customkeeps-api.onrender.com/admin/
+### **Target Market**
+- **Primary**: Young adults aged 18-30 in Metro Manila and major Philippine cities, middle-income bracket (₱15,000-₱40,000/month), seeking personalized keepsakes and gifts
+- **Secondary**: Small groups, clubs, and SMEs (10-50 members) needing small-batch branded merchandise
 
-Login with your superuser credentials created during setup.
+### **Value Proposition**
+CustomKeeps addresses the gap in the Philippine market where traditional print shops require high minimum orders, making them impractical for individuals or small groups. The platform offers:
+- **No Minimum Orders**: Single-item purchases accepted
+- **Affordable Pricing**: Pay-per-use model with tiered pricing for bulk orders
+- **Easy Customization**: User-friendly design tools without complex software
+- **Fast & Reliable**: Local production with predictable delivery
+- **Sustainable Options**: Eco-friendly materials available
 
-### Admin Features
-
-- ✅ **Manage Products** - Add/Edit/Delete products with image uploads
-- ✅ **View Orders** - Track order status and details
-- ✅ **User Management** - View user accounts and activity
-- ✅ **Cart Items** - Monitor active shopping carts
-- ✅ **Custom Theme** - Modern purple design with dark mode support
-- ✅ **Analytics Dashboard** - Order counts and revenue tracking
-
-### Customize Admin Theme
-
-1. Login to admin panel
-2. Look for **"Admin Interface"** in the left sidebar
-3. Click **"Themes"** → **"Default theme"**
-4. Customize these settings:
-   - **Title:** "CustomKeeps Admin"
-   - **Logo:** Upload your logo image
-   - **Primary color:** `#667eea` (purple)
-   - **Secondary color:** `#764ba2` (dark purple)
-   - **Link color:** `#667eea`
-5. Click **"Save"** and refresh the page
+### **Revenue Model**
+- Pay-per-use transactions (primary revenue)
+- 10-15% commission on partner creator designs
+- Subscription plan (CustomKeeps Plus at ₱149/month) with perks like free shipping and exclusive templates
 
 ---
 
-## 🧪 Testing
+## Known Issues & Limitations
 
-### Test User Credentials
+### **Current Limitations**
+1. **Design Upload Only**: Users must upload pre-made designs (JPG/PNG). No built-in drag-and-drop designer yet
+2. **Base64 Image Storage**: Design images stored as base64 in database instead of file storage (scalability concern for large files)
+3. **No Image Optimization**: Uploaded images not compressed, potentially affecting load times
+4. **Single Currency**: Only supports PHP (₱), no multi-currency support
+5. **No Product Categories**: Products not organized into categories (t-shirts, mugs, etc.)
+6. **Limited Order Status Updates**: Order status must be manually updated via admin panel
+7. **No Real-time Notifications**: Order status changes not sent via email/SMS
+8. **No Product Reviews**: Users cannot review or rate products
+9. **Fixed Product Prices**: Prices are hardcoded per product, no dynamic pricing based on customization complexity
 
-Create a test user for development:
+### **Known Bugs**
+- **Cart Persistence**: Cart clears after successful payment even if user navigates back
+- **Token Expiry**: No automatic token refresh on 401 errors (users must manually re-login)
+- **Coupon Case Sensitivity**: Coupon codes are case-insensitive in backend but frontend displays them as entered
 
-```bash
-python manage.py createsuperuser
-```
-
-Follow the prompts to set username, email, and password.
-
-### Test Stripe Cards
-
-Use these test card numbers in Stripe checkout (use any future expiry date and any 3-digit CVC):
-
-| Card Type | Number | Result |
-|-----------|--------|--------|
-| Visa (Success) | 4242 4242 4242 4242 | Payment succeeds |
-| Visa (Decline) | 4000 0000 0000 0002 | Payment fails |
-| 3D Secure Required | 4000 0025 0000 3155 | Requires authentication |
-
-**Expiry:** Any future date (e.g., 12/25)
-**CVV:** Any 3 digits (e.g., 123)
+### **Security Considerations**
+- CORS configured for specific origins (localhost, Vercel domain)
+- JWT tokens stored in localStorage (vulnerable to XSS attacks - should use httpOnly cookies)
+- Stripe test mode keys included in documentation (production keys must be secured)
 
 ---
 
-## 🐛 Troubleshooting
+## GC2 → Final Project Changelog
 
-### CORS Error When Calling API
+### **Major Tech Stack Changes**
 
-**Problem:** `Cross-Origin Request Blocked` error in browser console
+#### **Backend Migration: Node.js → Django**
+**Original GC2 Plan**: Node.js + Express + MongoDB  
+**Final Implementation**: Django + Django REST Framework + PostgreSQL
 
-**Solution:** 
-- Make sure `CORS_ALLOWED_ORIGINS` is configured in Django settings
-- Verify your frontend URL is included in the allowed origins list
-- Check that `django-cors-headers` is installed and in `MIDDLEWARE`
+**Reasons for Change**:
+- **Stronger Authentication**: Django's built-in user model + SimpleJWT provided more secure authentication out-of-the-box
+- **Admin Interface**: Django Admin offered immediate product/order management without custom admin panel development
+- **Relational Data**: PostgreSQL better suited for e-commerce transactions requiring ACID compliance
+- **Team Familiarity**: Members were already familiar with Django, reducing learning curve
 
-### Module Not Found Error in Django
+**Impact**: 
+- Faster backend development due to Django's batteries-included approach
+- Built-in ORM simplified database operations
+- Lost MongoDB flexibility for design storage (now using base64 text fields)
 
-**Problem:** `ModuleNotFoundError: No module named 'xxx'`
+#### **Frontend: React Native → React (Web Only)**
+**Original GC2 Plan**: React.js for web + React Native for mobile app  
+**Final Implementation**: React.js with Vite (web-only)
 
-**Solution:**
-```bash
-# Reinstall all dependencies
-pip install -r requirements.txt
-```
+**Reasons for Change**:
+- **Time Constraints**: Developing both web and mobile exceeded project timeline
+- **Focus on Core Features**: Prioritized polished web experience over multi-platform support
+- **Responsive Design**: Mobile-optimized web UI provided acceptable mobile experience
 
-### Static Files Not Loading on Render
+### **Major Feature Changes**
 
-**Problem:** CSS/JS files return 404 errors in production
+#### **Added Features** (Not in GC2 MVP)
+1. **Dynamic Coupon System**
+   - Admin-managed discount codes with validity periods
+   - Real-time coupon preview before checkout
+   - Applied discounts tracked per order
 
-**Solution:**
-1. Verify build command includes: `python manage.py collectstatic --no-input`
-2. Check that `whitenoise` is installed: `pip install whitenoise`
-3. Verify `whitenoise` middleware is in settings.py MIDDLEWARE list
-4. Force rebuild: In Render dashboard, click "Clear build cache & deploy"
+2. **Hold-to-Pay UX**
+   - Interactive 1.5-second hold button for payment confirmation
+   - Progress bar visual feedback
+   - Reduces accidental payments
 
-### Stripe Checkout Not Working
+3. **Cart Duplicate Detection**
+   - Merges identical items (same product + customization) by incrementing quantity
+   - Prevents cart clutter
 
-**Problem:** Stripe payment modal doesn't appear or payment fails
+4. **Enhanced Admin Interface**
+   - django-admin-interface package for modern UI
+   - Image preview thumbnails in admin panel
+   - Order status management with inline items
 
-**Solution:**
-- Verify Stripe keys are set correctly in environment variables
-- Ensure you're using **test keys** for development (`sk_test_`, `pk_test_`)
-- Check browser console for API errors
-- Verify Stripe account has test mode enabled
+5. **Order History Page**
+   - Detailed order cards with status badges
+   - Item-level customization display
+   - Date and payment tracking
 
-### Database Connection Error on Render
+#### **Removed/Deferred Features** (Planned in GC2 Phase 2)
+1. **Drag-and-Drop Designer**: Users must upload pre-made designs instead
+2. **AI Recommendation Engine**: No personalized product suggestions
+3. **Loyalty/Referral Program**: Points system not implemented
+4. **Social Login**: No Google/Facebook authentication
+5. **Real-time Order Tracking**: No logistics API integration
+6. **Push Notifications**: No mobile notifications or email automation
+7. **Subscription Plan**: CustomKeeps Plus membership not implemented
+8. **Mobile App**: React Native app not developed
 
-**Problem:** `django.db.utils.OperationalError: could not connect to server`
+### **Architecture Changes**
 
-**Solution:**
-- Check that `DATABASE_URL` environment variable is set in Render
-- Verify PostgreSQL database is created and running
-- In Render Shell, run: `python manage.py migrate`
+#### **Database Structure**
+**GC2 Plan**: MongoDB with flexible schema  
+**Final**: PostgreSQL with Django ORM
+
+**Models Added**:
+- `Coupon` model for dynamic discount management
+- `CartItem` model for persistent shopping cart
+- `OrderItem` model for line-item storage
+- Foreign key relationships (User → Order → OrderItem)
+
+**Key Difference**: Design images stored as TextField (base64) instead of file references or GridFS
+
+#### **Payment Flow**
+**GC2 Plan**: Simulated payment with mock integration  
+**Final**: Full Stripe integration with PaymentIntent API
+
+**Implementation**:
+- Stripe Elements for card input
+- Backend creates PaymentIntent with amount + coupon
+- Frontend confirms payment and triggers order creation
+- Payment metadata includes user ID and coupon code
+
+#### **Deployment**
+**GC2 Plan**: Suggested Heroku/AWS/DigitalOcean  
+**Final**: Render (backend) + Vercel (frontend)
+
+**Reasons**:
+- Free tiers available for student projects
+- Automatic deployment via GitHub integration
+- PostgreSQL included with Render
+- CDN and serverless functions on Vercel
+
+### **Code Organization Improvements**
+
+1. **API Service Abstraction**
+   - Centralized `apiService.js` for all backend calls
+   - Consistent JWT token handling
+   - Error handling standardization
+
+2. **Component Modularity**
+   - Separated Cart, Payment, CustomizationForm into reusable components
+   - OrderContext for state management
+   - Page-level components (CartPage, OrdersPage) for routing
+
+3. **Django App Structure**
+   - Single `api` app for all endpoints
+   - Serializers for model validation
+   - ViewSets for RESTful CRUD operations
+   - Custom actions (`create_from_cart`, `clear` cart)
+
+4. **Environment Configuration**
+   - `.env` files for sensitive credentials
+   - Vite's `import.meta.env` for frontend
+   - Django's `python-dotenv` for backend
+   - Separate dev/prod settings
 
 ---
 
-## 🔗 Quick Links
+## AI Usage Disclosure
 
-- **Live Frontend:** https://customkeeps.vercel.app
-- **Live Backend API:** https://customkeeps-api.onrender.com
-- **API Docs:** https://customkeeps-api.onrender.com/api/
-- **Admin Dashboard:** https://customkeeps-api.onrender.com/admin/
-- **GitHub Repository:** https://github.com/definotethan/-ITMGT-45.03-Final-Project
+This project was developed with assistance from **Perplexity AI** and other AI tools for the following purposes:
 
-\\
+### **Code Development Assistance**
+- **Backend API Design**: AI helped structure Django REST Framework views, serializers, and URL routing patterns
+- **Stripe Integration**: Guidance on implementing Stripe PaymentIntent flow in Django and React
+- **JWT Authentication**: Assistance with djangorestframework-simplejwt configuration and token refresh logic
+- **React Component Structure**: Suggestions for component organization and state management patterns
+- **Error Handling**: Best practices for API error responses and frontend error display
 
+### **Debugging & Problem-Solving**
+- **CORS Issues**: Resolved cross-origin errors between Vercel frontend and Render backend
+- **Stripe Test Mode**: Troubleshot PaymentIntent confirmation errors
+- **Base64 Image Handling**: Implemented design image upload and storage strategy
+- **Cart Duplication Logic**: Developed algorithm for detecting and merging identical cart items
+- **Deployment Configuration**: Fixed static file serving with WhiteNoise and build commands
 
+### **Learning Outcomes**
+While AI accelerated development, the core understanding of Django REST Framework, React patterns, JWT authentication, and Stripe integration was achieved through hands-on implementation and debugging. AI served as a mentor/reference guide rather than a replacement for learning.
 
+---
 
+**Project Team**: Ethan Aquino, Arianna Chan, Paul Kim, Harmonie Lin, Luis Quintos
 
