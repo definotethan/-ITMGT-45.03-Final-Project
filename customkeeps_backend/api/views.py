@@ -98,13 +98,20 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        line_totals = [
+        # 1) Raw subtotal BEFORE any discounts: price * quantity
+        raw_subtotal = sum(item.price * item.quantity for item in cart_items)
+
+        # 2) Subtotal AFTER bulk (tiered) discount
+        line_totals_after_bulk = [
             apply_tiered_pricing(item.price, item.quantity) for item in cart_items
         ]
-        total_amount = sum(line_totals)
+        subtotal_after_bulk = sum(line_totals_after_bulk)
+
+        # Bulk discount is the difference between raw and bulked subtotal
+        bulk_discount = raw_subtotal - subtotal_after_bulk
 
         coupon_code = request.data.get("coupon_code", "").upper()
-        discount_amount = Decimal("0.00")
+        coupon_discount = Decimal("0.00")
 
         coupon = None
         if coupon_code:
@@ -116,27 +123,35 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
                     valid_from__lte=now,
                     valid_to__gte=now,
                 )
-                discount_amount = total_amount * (
+                coupon_discount = subtotal_after_bulk * (
                     coupon.discount_percent / Decimal("100")
                 )
             except Coupon.DoesNotExist:
                 pass
 
-        final_amount = total_amount - discount_amount
+        # 3) Total discount = bulk + coupon
+        total_discount = bulk_discount + coupon_discount
 
+        # 4) Final amount actually charged
+        final_amount = raw_subtotal - total_discount
+
+        # 5) Persist raw_subtotal as total_amount, and total_discount as discount_amount
         order = Order.objects.create(
             user=request.user,
             order_id=str(uuid.uuid4())[:8].upper(),
-            total_amount=total_amount,
-            discount_amount=discount_amount,
-            final_amount=final_amount,
+            total_amount=raw_subtotal,          # raw subtotal (e.g. 5000)
+            discount_amount=total_discount,     # bulk + coupon (e.g. 950)
+            final_amount=final_amount,          # amount charged (e.g. 4050)
             coupon_code=coupon_code,
             payment_intent_id=request.data.get("payment_intent_id", ""),
         )
 
+        # When saving items, still store the effective per‑unit price AFTER bulk
         for cart_item in cart_items:
-            line_total = apply_tiered_pricing(cart_item.price, cart_item.quantity)
-            effective_unit_price = line_total / cart_item.quantity
+            line_total_after_bulk = apply_tiered_pricing(
+                cart_item.price, cart_item.quantity
+            )
+            effective_unit_price = line_total_after_bulk / cart_item.quantity
 
             OrderItem.objects.create(
                 order=order,
