@@ -36,8 +36,8 @@ Built with Django REST Framework, React 19, Vite, and Stripe. A fully-functional
 
 ### Deployment & Hosting
 
-- **Backend**: Render.com (Django API + PostgreSQL database)
-- **Frontend**: Vercel (React SPA with edge caching)
+- **Backend**: Render.com (Django API + PostgreSQL database) - **https://itmgt-45-03-final-project.onrender.com**
+- **Frontend**: Vercel (React SPA with edge caching) - **https://customkeeps.vercel.app/**
 - **Database**: PostgreSQL 15 on Render
 
 ---
@@ -488,12 +488,11 @@ The exact flow ensures consistency across cart, payment, and persisted orders:
 - ✅ Migrated database from SQLite to PostgreSQL for production reliability
 - ✅ Updated Django to 5.2.8; refactored all API endpoints to REST best practices
 - ✅ Replaced manual form handling with react-hook-form for cleaner validation
-
-**Reasons for Tech. Stack Changee**:
-- **Stronger Authentication**: Django's built-in user model + SimpleJWT provided more secure authentication out-of-the-box
-- **Admin Interface**: Django Admin offered immediate product/order management without custom admin panel development
-- **Relational Data**: PostgreSQL better suited for e-commerce transactions requiring ACID compliance
-- **Team Familiarity**: Members were already familiar with Django, reducing learning curve
+- **Reasons for Tech. Stack Changee**:
+   - **Stronger Authentication**: Django's built-in user model + SimpleJWT provided more secure authentication out-of-the-box
+   - **Admin Interface**: Django Admin offered immediate product/order management without custom admin panel development
+   - **Relational Data**: PostgreSQL better suited for e-commerce transactions requiring ACID compliance
+   - **Team Familiarity**: Members were already familiar with Django, reducing learning curve
 
 **Payment Integration**
 - ✅ Implemented Stripe PaymentIntent API (replaces Stripe.js basic flow)
@@ -611,3 +610,4 @@ To address current limitations and enhance functionality:
 10. **Rate Limiting**: Add DRF throttle classes to API endpoints to prevent abuse
 11. **Inventory Management**: Add stock levels to Product model; prevent overselling
 12. **Order Cancellation**: Allow users to cancel orders before fulfillment; refund via Stripe
+
