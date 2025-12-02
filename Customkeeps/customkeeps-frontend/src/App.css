@@ -1267,6 +1267,20 @@ body {
     align-items: flex-start;
     gap: 8px;
   }
+
+  /* Allow auth page to scroll and start under the navbar on tablets/phones */
+  .auth-page-wrapper {
+    position: static;
+    height: auto;
+    min-height: 100vh;
+    align-items: flex-start;
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+
+  .auth-layout {
+    gap: 24px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1291,7 +1305,8 @@ body {
   }
 
   .auth-logo {
-    max-width: 250px;
+    max-width: 220px;
+    padding: 10px 0;
   }
 
   .global-success-message {
@@ -1313,6 +1328,11 @@ body {
     flex-direction: column;
     width: 100%;
     max-width: 360px;
+    gap: 16px;
+  }
+
+  .auth-card {
+    width: 100%;
   }
 
   .page-title {
